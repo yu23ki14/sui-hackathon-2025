@@ -1,78 +1,78 @@
 // Copyright (c) Champion Together
 // SPDX-License-Identifier: Apache-2.0
 
-/// Constants module for Champion Together platform
-/// Defines USDC token address and system-wide constants
-module champion_together::constants {
-    // ===== USDC Token Configuration =====
+/// Champion Togetherプラットフォーム用定数モジュール
+/// USDCトークンアドレスとシステム全体の定数を定義
+module champion_together::utils_constants {
+    // ===== USDCトークン設定 =====
     
-    /// USDC Testnet token address on Sui
-    /// Reference: https://testnet.suivision.xyz/coin/0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC
+    /// Sui上のUSDC Testnetトークンアドレス
+    /// 参照: https://testnet.suivision.xyz/coin/0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC
     const USDC_TESTNET_ADDRESS: address = @0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29;
     
-    /// USDC decimal precision (6 decimals)
+    /// USDC小数点精度（6桁）
     const USDC_DECIMALS: u8 = 6;
     
-    // ===== System Configuration =====
+    // ===== システム設定 =====
     
-    /// Default support cap: 3,000 USDC (in micro USDC: 3,000 * 10^6)
+    /// デフォルト支援上限: 3,000 USDC（マイクロUSDC: 3,000 * 10^6）
     const DEFAULT_SUPPORT_CAP: u64 = 3_000_000_000;
     
-    /// Default distribution interval: 30 days in seconds
+    /// デフォルト分配間隔: 30日（秒単位）
     const DEFAULT_DISTRIBUTION_INTERVAL: u64 = 2_592_000;
     
-    // ===== Member Rank Thresholds (in micro USDC) =====
+    // ===== メンバーランク閾値（マイクロUSDC） =====
     
-    /// Bronze rank minimum: 10 USDC
+    /// ブロンズランク最小値: 10 USDC
     const BRONZE_MIN: u64 = 10_000_000;
     
-    /// Silver rank minimum: 50 USDC
+    /// シルバーランク最小値: 50 USDC
     const SILVER_MIN: u64 = 50_000_000;
     
-    /// Gold rank minimum: 100 USDC
+    /// ゴールドランク最小値: 100 USDC
     const GOLD_MIN: u64 = 100_000_000;
     
-    /// Platinum rank minimum: 200 USDC
+    /// プラチナランク最小値: 200 USDC
     const PLATINUM_MIN: u64 = 200_000_000;
     
-    // ===== Public Getter Functions =====
+    // ===== パブリックゲッター関数 =====
     
-    /// Get USDC testnet token address
+    /// USDC testnetトークンアドレスを取得
     public fun usdc_testnet_address(): address {
         USDC_TESTNET_ADDRESS
     }
     
-    /// Get USDC decimal precision
+    /// USDC小数点精度を取得
     public fun usdc_decimals(): u8 {
         USDC_DECIMALS
     }
     
-    /// Get default support cap
+    /// デフォルト支援上限を取得
     public fun default_support_cap(): u64 {
         DEFAULT_SUPPORT_CAP
     }
     
-    /// Get default distribution interval
+    /// デフォルト分配間隔を取得
     public fun default_distribution_interval(): u64 {
         DEFAULT_DISTRIBUTION_INTERVAL
     }
     
-    /// Get Bronze rank minimum threshold
+    /// ブロンズランク最小閾値を取得
     public fun bronze_min(): u64 {
         BRONZE_MIN
     }
     
-    /// Get Silver rank minimum threshold
+    /// シルバーランク最小閾値を取得
     public fun silver_min(): u64 {
         SILVER_MIN
     }
     
-    /// Get Gold rank minimum threshold
+    /// ゴールドランク最小閾値を取得
     public fun gold_min(): u64 {
         GOLD_MIN
     }
     
-    /// Get Platinum rank minimum threshold
+    /// プラチナランク最小閾値を取得
     public fun platinum_min(): u64 {
         PLATINUM_MIN
     }
