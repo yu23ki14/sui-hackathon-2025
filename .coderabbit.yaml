@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit Configuration for Essay Writing Project
+# Project: Designing a "New Municipality" under 10,000 residents
+
+# ============================================================================
+# GLOBAL SETTINGS
+# ============================================================================
+
+# Primary language: Japanese (essay is in Japanese with English abstract)
+language: "ja-JP"
+
+early_access: false
+enable_free_tier: true
+
+# ============================================================================
+# REVIEWS
+# ============================================================================
+
+reviews:
+  # Use assertive profile for more detailed academic feedback
+  profile: "assertive"
+
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  review_status: true
+  commit_status: true
+
+  # Enable detailed walkthrough features
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: false  # Not relevant for essay writing
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+
+  # Label suggestions for tracking essay progress
+  suggested_labels: true
+  # Labeling instructions provide general guidelines for suggesting labels
+  # CodeRabbit will suggest appropriate labels based on the changes
+  labeling_instructions: []
+  auto_apply_labels: true
+
+  suggested_reviewers: true
+  poem: false  # Disable poems for professional academic context
+
+  # Path filters: Focus on essay content and documentation
+  path_filters:
+    - "contract/**"      # Main essay chapters
+    - "frontend/**/**"          # References and research
+    - "README.md"             # Project overview
+    - "CLAUDE.md"             # Writing guidelines
+    - "!node_modules/**"
+    - "!.git/**"
+
+  # Path-specific instructions
+  path_instructions:
+    - path: "contract/**"
+      instructions: |
+        - Verify input validation and access control patterns
+        - Check DAO treasury distribution logic and split calculations
+        - Review rank calculation and NFT minting implementation
+        - Ensure proper error handling and event emission
+        - Validate test coverage for edge cases
+
+    - path: "frontend/**"
+      instructions: |
+        - Verify Sui Wallet integration and transaction flows
+        - Check responsive design and mobile-first implementation
+        - Review error handling and loading states
+        - Validate Lit Protocol integration for tiered content
+        - Ensure TypeScript type safety and proper state management
+
+  abort_on_close: true
+  disable_cache: false
+
+  # Auto review configuration
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "wip"
+      - "draft"
+      - "作業中"
+    drafts: false
+
+  # Finishing touches
+  finishing_touches:
+    docstrings:
+      enabled: false  # Not applicable for markdown essays
+    unit_tests:
+      enabled: false  # Not applicable for markdown essays
+
+  # Tools configuration
+  tools:
+    # Markdown linting for consistency
+    markdownlint:
+      enabled: true
+
+    # Japanese grammar and style checking
+    languagetool:
+      enabled: true
+      level: "picky"  # Strict checking for academic writing
+      enabled_categories:
+        - "GRAMMAR"
+        - "STYLE"
+        - "REDUNDANCY"
+      disabled_categories:
+        - "TYPOS"  # May have false positives with Japanese technical terms
+      # Disable overly strict rules that may interfere with Japanese academic style
+      disabled_rules:
+        - "WHITESPACE_RULE"
+        - "EN_QUOTES"
+
+    # Disable code-specific tools
+    ast-grep:
+      essential_rules: false
+    shellcheck:
+      enabled: false
+    ruff:
+      enabled: false
+    biome:
+      enabled: false
+    eslint:
+      enabled: false
+    gitleaks:
+      enabled: false
+    semgrep:
+      enabled: false
+
+# ============================================================================
+# CHAT
+# ============================================================================
+
+chat:
+  art: false  # Professional academic context
+  auto_reply: true
+
+# ============================================================================
+# KNOWLEDGE BASE
+# ============================================================================
+
+knowledge_base:
+  opt_out: false
+
+  web_search:
+    enabled: true  # Enable for finding relevant research and references
+
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"  # Essay writing guidelines
+      - "README.md"  # Project overview
+
+  learnings:
+    scope: "local"  # Keep learnings repository-specific
+
+  issues:
+    scope: "local"
+
+  pull_requests:
+    scope: "local"
