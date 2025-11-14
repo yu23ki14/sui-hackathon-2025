@@ -4,10 +4,11 @@
 
 A decentralized fan club platform for fighters. Fans contribute USDC → DAO treasury → Smart contracts auto-distribute to fighter/gym/organizers. Members NFT minted per support, ranks unlock exclusive content via Lit Protocol. Victory bonuses incentivize engagement.
 
-## 全体的な方針
-- 特段の指定がない限り、思考は英語で行いわかりやすくて自然な日本語で回答を出力してください
-- 毎回必ずプロジェクトをアクティベートしてください。
-- プロジェクトがオンボーディングされていない場合はオンボーディングしてください。
+## General Guidelines
+- Unless otherwise specified, think in English and output responses in clear, natural Japanese
+- Always activate the project at the beginning of each session
+- If the project is not onboarded, perform onboarding first
+- Follow Test-Driven Development (TDD) and Spec-Driven Development (SDD) principles for design and implementation
 
 ## Repository Structure (Monorepo)
 
@@ -69,106 +70,106 @@ DEPLOYER_ADDRESS=0x...
 - Use fighter-themed colors (bold, energetic)
 - Mobile-first responsive design
 
-## 開発の基本理念
-- 動くコードを書くだけでなく、品質・保守性・安全性を常に意識する
-- プロジェクトの段階（プロトタイプ、MVP、本番環境）に応じて適切なバランスを取る
-- 問題を見つけたら放置せず、必ず対処または明示的に記録する
-- ボーイスカウトルール：コードを見つけた時よりも良い状態で残す
+## Core Development Philosophy
+- Focus not only on writing working code, but always consider quality, maintainability, and security
+- Strike the appropriate balance based on project stage (prototype, MVP, production)
+- When you find a problem, don't ignore it—address it or explicitly document it
+- Boy Scout Rule: Leave code better than you found it
 
-## エラーハンドリングの原則
-- 関連が薄く見えるエラーでも必ず解決する
-- エラーの抑制（@ts-ignore、try-catch で握りつぶす等）ではなく、根本原因を修正
-- 早期にエラーを検出し、明確なエラーメッセージを提供
-- エラーケースも必ずテストでカバーする
-- 外部APIやネットワーク通信は必ず失敗する可能性を考慮
+## Error Handling Principles
+- Resolve all errors, even those that seem loosely related
+- Fix root causes rather than suppressing errors (@ts-ignore, swallowing with try-catch, etc.)
+- Detect errors early and provide clear error messages
+- Always cover error cases with tests
+- Always consider the possibility of failure for external APIs and network communications
 
-## コード品質の基準
-- DRY原則：重複を避け、単一の信頼できる情報源を維持
-- 意味のある変数名・関数名で意図を明確に伝える
-- プロジェクト全体で一貫したコーディングスタイルを維持
-- 小さな問題も放置せず、発見次第修正（Broken Windows理論）
-- コメントは「なぜ」を説明し、「何を」はコードで表現
+## Code Quality Standards
+- DRY Principle: Avoid duplication and maintain a single source of truth
+- Use meaningful variable and function names to clearly convey intent
+- Maintain consistent coding style throughout the project
+- Don't ignore small problems—fix them as soon as discovered (Broken Windows Theory)
+- Comments should explain "why", code should express "what"
 
-## テスト規律
-- テストをスキップせず、問題があれば修正する
-- 実装詳細ではなく振る舞いをテスト
-- テスト間の依存を避け、任意の順序で実行可能に
-- テストは高速で、常に同じ結果を返すように
-- カバレッジは指標であり、質の高いテストを重視
+## Testing Discipline
+- Don't skip tests—fix them if there are issues
+- Test behavior, not implementation details
+- Avoid dependencies between tests; they should run in any order
+- Tests should be fast and always return the same results
+- Coverage is a metric; prioritize high-quality tests
 
-## 保守性とリファクタリング
-- 機能追加と同時に既存コードの改善を検討
-- 大規模な変更は小さなステップに分割
-- 使用されていないコードは積極的に削除
-- 依存関係は定期的に更新（セキュリティと互換性のため）
-- 技術的負債は明示的にコメントやドキュメントに記録
+## Maintainability and Refactoring
+- Consider improving existing code when adding features
+- Break large changes into small steps
+- Actively delete unused code
+- Regularly update dependencies (for security and compatibility)
+- Explicitly document technical debt in comments or documentation
 
-## セキュリティの考え方
-- APIキー、パスワード等は環境変数で管理（ハードコード禁止）
-- すべての外部入力を検証
-- 必要最小限の権限で動作（最小権限の原則）
-- 不要な依存関係を避ける
-- セキュリティ監査ツールを定期的に実行
+## Security Mindset
+- Manage API keys, passwords, etc. with environment variables (no hardcoding)
+- Validate all external inputs
+- Operate with minimum necessary privileges (Principle of Least Privilege)
+- Avoid unnecessary dependencies
+- Run security audit tools regularly
 
-## パフォーマンスの意識
-- 推測ではなく計測に基づいて最適化
-- 初期段階から拡張性を考慮
-- 必要になるまでリソースの読み込みを遅延
-- キャッシュの有効期限と無効化戦略を明確に
-- N+1問題やオーバーフェッチを避ける
+## Performance Awareness
+- Optimize based on measurement, not speculation
+- Consider scalability from the early stages
+- Defer loading resources until needed
+- Clearly define cache expiration and invalidation strategies
+- Avoid N+1 problems and over-fetching
 
-## 信頼性の確保
-- タイムアウト処理を適切に設定
-- リトライ機構の実装（指数バックオフを考慮）
-- サーキットブレーカーパターンの活用
-- 一時的な障害に対する耐性を持たせる
-- 適切なログとメトリクスで可観測性を確保
+## Ensuring Reliability
+- Set appropriate timeout handling
+- Implement retry mechanisms (consider exponential backoff)
+- Utilize circuit breaker patterns
+- Build resilience against temporary failures
+- Ensure observability with appropriate logs and metrics
 
-## プロジェクトコンテキストの理解
-- ビジネス要件と技術要件のバランスを取る
-- 現在のフェーズで本当に必要な品質レベルを判断
-- 時間制約がある場合でも、最低限の品質基準を維持
-- チーム全体の技術レベルに合わせた実装選択
+## Understanding Project Context
+- Balance business requirements with technical requirements
+- Determine the truly necessary quality level for the current phase
+- Maintain minimum quality standards even under time constraints
+- Choose implementations appropriate for the team's technical level
 
-## トレードオフの認識
-- すべてを完璧にすることは不可能（銀の弾丸は存在しない）
-- 制約の中で最適なバランスを見つける
-- プロトタイプなら簡潔さを、本番なら堅牢性を優先
-- 妥協点とその理由を明確にドキュメント化
+## Recognizing Tradeoffs
+- Perfection is impossible (there is no silver bullet)
+- Find the optimal balance within constraints
+- Prioritize simplicity for prototypes, robustness for production
+- Clearly document compromises and their rationale
 
-## Git運用の基本
-- コンベンショナルコミット形式を使用（feat:, fix:, docs:, test:, refactor:, chore:）
-- コミットは原子的で、単一の変更に焦点を当てる
-- 明確で説明的なコミットメッセージを英語で記述
-- main/masterブランチへの直接コミットは避ける
+## Git Operations Basics
+- Use Conventional Commit format (feat:, fix:, docs:, test:, refactor:, chore:)
+- Commits should be atomic, focusing on a single change
+- Write clear, descriptive commit messages in English
+- Avoid direct commits to main/master branch
 
-## コードレビューの姿勢
-- レビューコメントは建設的な改善提案として受け取る
-- 個人ではなくコードに焦点を当てる
-- 変更の理由と影響を明確に説明
-- フィードバックを学習機会として歓迎
+## Code Review Attitude
+- Accept review comments as constructive improvement suggestions
+- Focus on code, not individuals
+- Clearly explain reasons for changes and their impact
+- Welcome feedback as learning opportunities
 
-## デバッグのベストプラクティス
-- 問題を確実に再現できる手順を確立
-- 二分探索で問題の範囲を絞り込む
-- 最近の変更から調査を開始
-- デバッガー、プロファイラー等の適切なツールを活用
-- 調査結果と解決策を記録し、知識を共有
+## Debugging Best Practices
+- Establish steps to reliably reproduce the problem
+- Narrow down the problem scope with binary search
+- Start investigation from recent changes
+- Utilize appropriate tools like debuggers and profilers
+- Document findings and solutions, share knowledge
 
-## 依存関係の管理
-- 本当に必要な依存関係のみを追加
-- package-lock.json等のロックファイルを必ずコミット
-- 新しい依存関係追加前にライセンス、サイズ、メンテナンス状況を確認
-- セキュリティパッチとバグ修正のため定期的に更新
+## Dependency Management
+- Add only truly necessary dependencies
+- Always commit lock files like package-lock.json
+- Check license, size, and maintenance status before adding new dependencies
+- Update regularly for security patches and bug fixes
 
-## ドキュメントの基準
-- READMEにプロジェクトの概要、セットアップ、使用方法を明確に記載
-- ドキュメントをコードと同期して更新
-- 実例を示すことを優先
-- 重要な設計判断はADR (Architecture Decision Records)で記録
+## Documentation Standards
+- Clearly describe project overview, setup, and usage in README
+- Keep documentation synchronized with code updates
+- Prioritize showing examples
+- Record important design decisions in ADR (Architecture Decision Records)
 
-## 継続的な改善
-- 学んだことを次のプロジェクトに活かす
-- 定期的に振り返りを行い、プロセスを改善
-- 新しいツールや手法を適切に評価して取り入れる
-- チームや将来の開発者のために知識を文書化
+## Continuous Improvement
+- Apply lessons learned to the next project
+- Conduct regular retrospectives and improve processes
+- Appropriately evaluate and adopt new tools and techniques
+- Document knowledge for the team and future developers
