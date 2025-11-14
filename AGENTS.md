@@ -23,10 +23,11 @@ A decentralized fan club platform for fighters. Fans contribute USDC → DAO tre
 
 ### Frontend (`/frontend`)
 - **Framework**: Vite + React
-- **Routing**: React Router
-- **Styling**: Tailwind CSS
+- **Routing**: React Router v7
+- **Styling**: radix-ui
 - **Wallet**: Sui Wallet SDK
 - **State**: React Context / hooks
+- **Package Manager**: pnpm
 
 ### Smart Contracts (`/contracts`)
 - **Language**: Move
@@ -65,10 +66,24 @@ DEPLOYER_ADDRESS=0x...
 3. **Reentrancy**: Use Sui's resource model (no reentrancy by design)
 4. **Integer Overflow**: Move has built-in overflow checks
 
-## Styling Guidelines (Tailwind)
+## Design System
+
+### Color Palette
+
+| Usage | Color | Code |
+|-------|-------|------|
+| Primary Color | Electric Blue | `#0A84FF` |
+| Secondary Color | Dark Slate | `#0B0E11` |
+| Accent / Win / Urgent | Fighting Red | `#E53935` |
+| Primary Text | White | `#FFFFFF` |
+| Secondary Text | Cool Gray | `#C9D1D9` |
+| Border | Subtle Dark Gray | `#2A2F34` |
+
+### Styling Guidelines
 
 - Use fighter-themed colors (bold, energetic)
 - Mobile-first responsive design
+- Custom theme defined in `frontend/src/theme.css`
 
 ## Core Development Philosophy
 - Focus not only on writing working code, but always consider quality, maintainability, and security

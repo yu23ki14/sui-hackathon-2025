@@ -1,0 +1,80 @@
+/* CHAMPION TOGETHER - Custom Theme */
+
+:root {
+  /* Project Color Palette */
+  --color-primary: #0A84FF; /* Electric Blue */
+  --color-secondary: #0B0E11; /* Dark Slate */
+  --color-accent: #E53935; /* Fighting Red */
+  --color-text-primary: #FFFFFF; /* White */
+  --color-text-secondary: #C9D1D9; /* Cool Gray */
+  --color-border: #2A2F34; /* Subtle Dark Gray */
+}
+
+/* Radix UI Theme Overrides - Force Dark Slate Background */
+.radix-themes {
+  /* Background Colors - Always Dark Slate */
+  --color-background: #0B0E11 !important;
+  --color-panel: transparent !important;
+  --color-panel-solid: #0B0E11 !important;
+  --color-overlay: #0B0E11 !important;
+
+  /* Accent Color - Electric Blue */
+  --accent-9: #0A84FF;
+  --accent-10: #0A84FF;
+  --accent-11: #0A84FF;
+  --accent-a9: #0A84FFcc;
+
+  /* Gray Scale - Dark Slate */
+  --gray-1: #0B0E11;
+  --gray-2: #2A2F34;
+  --gray-3: #2A2F34;
+  --gray-4: #2A2F34;
+  --gray-a1: transparent;
+  --gray-a2: transparent;
+  --gray-a3: #2A2F34;
+
+  /* Text Colors */
+  --gray-12: #FFFFFF;
+  --gray-11: #C9D1D9;
+
+  /* Red for Accent/Urgent */
+  --red-9: #E53935;
+  --red-10: #E53935;
+
+  /* Border */
+  --gray-6: #2A2F34;
+  --gray-a6: #2A2F34;
+
+  /* Font */
+  --default-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Custom Background - Force Dark Slate Everywhere */
+html,
+body,
+#root {
+  background-color: var(--color-secondary) !important;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Link Styles */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Custom Button Overrides */
+button {
+  transition: all 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}

@@ -1,71 +1,33 @@
-import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
-import { isValidSuiObjectId } from "@mysten/sui/utils";
-import { Box, Button, Container, Flex, Heading } from "@radix-ui/themes";
-import { useState } from "react";
-import { Greeting } from './Greeting';
-import { CreateGreeting } from "./CreateGreeting";
+import { Container } from "@radix-ui/themes";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Header } from "./components/Header";
+import Top from "./pages/Top";
+import Support from "./pages/Support";
+import MyPage from "./pages/MyPage";
+import ExclusiveContent from "./pages/ExclusiveContent";
+import Admin from "./pages/Admin";
 
 function App() {
-  const currentAccount = useCurrentAccount();
-  const [greetingId, setGreeting] = useState(() => {
-    const hash = window.location.hash.slice(1);
-    return isValidSuiObjectId(hash) ? hash : null;
-  });
-
   return (
-    <>
-      <Flex
-        position="sticky"
-        px="4"
-        py="2"
-        justify="between"
-        align={"center"}
-        style={{
-          borderBottom: "1px solid var(--gray-a2)",
-        }}
-      >
-        <Box>
-          <Heading>dApp Starter Template</Heading>
-        </Box>
-
-        <Box style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {currentAccount && (
-            <Button
-              variant="soft"
-              onClick={() => {
-                window.open(`https://faucet.sui.io/?address=${currentAccount.address}`, '_blank');
-              }}
-            >
-              Get Testnet SUI
-            </Button>
-          )}
-          <ConnectButton />
-        </Box>
-      </Flex>
+    <BrowserRouter>
+      <Header />
       <Container>
         <Container
           mt="5"
           pt="2"
           px="4"
-          style={{ background: "var(--gray-a2)", minHeight: 500 }}
+          style={{ minHeight: "calc(100vh - 64px)" }}
         >
-          {currentAccount ? (
-            greetingId ? (
-              <Greeting id={greetingId} />
-            ) : (
-              <CreateGreeting
-                onCreated={(id) => {
-                  window.location.hash = id;
-                  setGreeting(id);
-                }}
-              />
-            )
-          ) : (
-            <Heading>Please connect your wallet</Heading>
-          )}
+          <Routes>
+            <Route path="/" element={<Top />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/exclusive" element={<ExclusiveContent />} />
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
         </Container>
       </Container>
-    </>
+    </BrowserRouter>
   );
 }
 
