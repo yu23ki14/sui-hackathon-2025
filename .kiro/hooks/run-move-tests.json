@@ -1,0 +1,16 @@
+{
+  "name": "Run Move Tests",
+  "description": "Moveファイルを保存したときに自動的にテストを実行します",
+  "trigger": {
+    "type": "onFileSave",
+    "filePattern": "**/*.move"
+  },
+  "action": {
+    "type": "runCommand",
+    "command": "sui move test",
+    "workingDirectory": "contracts"
+  },
+  "enabled": true,
+  "showNotification": true,
+  "notificationMessage": "Move tests completed"
+}
