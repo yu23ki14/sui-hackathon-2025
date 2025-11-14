@@ -5,6 +5,7 @@ import { WalletInfo } from "../components/WalletInfo";
 import { SupportForm } from "../components/SupportForm";
 import { FeedbackAlert } from "../components/FeedbackAlert";
 import { useWalletConnection, useUsdcBalance, useSupport, useDaoInfo } from "../hooks";
+import { supportPageConfig, siteConfig, fighterInfo } from "../config";
 
 export default function Support() {
   const { walletAddress } = useWalletConnection();
@@ -27,13 +28,13 @@ export default function Support() {
         // Refetch balance after successful support
         await refetchBalance();
       } else {
-        setErrorMessage(result.error || "トランザクションに失敗しました。");
+        setErrorMessage(result.error || supportPageConfig.errorMessage);
       }
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "トランザクションに失敗しました。ウォレットの状態を確認して、もう一度お試しください。"
+          : supportPageConfig.errorMessage
       );
     }
   };
@@ -62,11 +63,11 @@ export default function Support() {
             marginBottom: "16px",
           }}
         >
-          Support TEAM KENTA
+          Support {siteConfig.daoName}
         </Box>
 
         <Heading size="8" mb="3">
-          サポートして、KENTAの挑戦を支える
+          {supportPageConfig.title}
         </Heading>
 
         <Text
@@ -79,9 +80,7 @@ export default function Support() {
             margin: "0 auto",
           }}
         >
-          USDC で支援すると、資金は DAO プールに蓄積され、
-          <br />
-          スマートコントラクトによって選手・ジム・幹事に自動分配されます。
+          {supportPageConfig.description}
         </Text>
       </Box>
 
@@ -90,7 +89,7 @@ export default function Support() {
         <Box mb="4">
           <FeedbackAlert
             type="success"
-            message="Members NFT があなたのウォレットにミントされました。"
+            message={supportPageConfig.successMessage}
             txHash={successTxHash}
             onClose={handleCloseSuccess}
           />
@@ -114,8 +113,8 @@ export default function Support() {
         <>
           <Box mb="4">
             <DAOInfoCard
-              name={daoInfo?.name || "TEAM KENTA DAO"}
-              description="ONE 参戦を目指すバンタム級ファイター KENTA を支えるコミュニティプールです。"
+              name={daoInfo?.name || siteConfig.daoName}
+              description={supportPageConfig.dao.description}
               fighterPercentage={daoInfo?.fighterPercentage || 70}
               gymPercentage={daoInfo?.gymPercentage || 20}
               organizerPercentage={daoInfo?.organizerPercentage || 10}

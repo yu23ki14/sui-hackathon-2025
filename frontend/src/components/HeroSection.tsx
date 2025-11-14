@@ -1,5 +1,6 @@
 import { Box, Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
+import { siteConfig, fighterInfo, homePageConfig } from "../config";
 
 export function HeroSection() {
   return (
@@ -31,19 +32,19 @@ export function HeroSection() {
               marginBottom: "16px",
             }}
           >
-            TEAM KENTA DAO
+            {siteConfig.daoName}
           </Box>
 
           {/* ファイター名 */}
           <Heading size="8" mb="2">
-            KENTA TAKAHASHI
+            {fighterInfo.name}
           </Heading>
           <Text
             size="3"
             style={{ color: "var(--color-text-secondary)", display: "block" }}
             mb="4"
           >
-            Bantamweight / STRONG Gym
+            {fighterInfo.weightClass} / {fighterInfo.gym}
           </Text>
 
           {/* ジム名・幹事名 */}
@@ -56,13 +57,13 @@ export function HeroSection() {
                 marginBottom: "8px",
               }}
             >
-              🥋 所属ジム：STRONG Gym
+              🥋 所属ジム：{fighterInfo.gym}
             </Text>
             <Text
               size="2"
               style={{ color: "var(--color-text-secondary)", display: "block" }}
             >
-              👥 幹事：後援会 TEAM ARENA
+              👥 幹事：{fighterInfo.organizer}
             </Text>
           </Box>
 
@@ -76,7 +77,7 @@ export function HeroSection() {
             }}
             mb="5"
           >
-            ONE を目指すファイターを、コミュニティで継続的に支える後援会DAOです。
+            {homePageConfig.hero.catchphrase}
           </Text>
 
           {/* メインCTAボタン */}
@@ -91,7 +92,7 @@ export function HeroSection() {
                   cursor: "pointer",
                 }}
               >
-                今すぐ Support する
+                {homePageConfig.hero.ctaButtonText}
               </Button>
             </Link>
             <Text
@@ -102,7 +103,7 @@ export function HeroSection() {
                 marginTop: "8px",
               }}
             >
-              USDC で支援 / Web3 ウォレット対応
+              {homePageConfig.hero.ctaSubtext}
             </Text>
           </Box>
         </Box>
@@ -111,7 +112,9 @@ export function HeroSection() {
         <Box
           style={{
             flex: 1,
-            background: "var(--color-border)",
+            background: fighterInfo.imageUrl
+              ? `url(${fighterInfo.imageUrl}) center/cover`
+              : "var(--color-border)",
             borderRadius: "8px",
             minHeight: "300px",
             display: "flex",
@@ -119,14 +122,19 @@ export function HeroSection() {
             justifyContent: "center",
           }}
         >
-          <Text
-            size="2"
-            style={{ color: "var(--color-text-secondary)", textAlign: "center" }}
-          >
-            ファイター画像
-            <br />
-            (16:9)
-          </Text>
+          {!fighterInfo.imageUrl && (
+            <Text
+              size="2"
+              style={{
+                color: "var(--color-text-secondary)",
+                textAlign: "center",
+              }}
+            >
+              ファイター画像
+              <br />
+              (16:9)
+            </Text>
+          )}
         </Box>
       </Flex>
     </Card>

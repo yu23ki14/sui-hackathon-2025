@@ -111,6 +111,78 @@ The built files will be in `frontend/dist/`
 - Set `VITE_LIT_NETWORK=datil` for Lit Protocol mainnet
 - Ensure all wallet addresses are correct and controlled by the appropriate parties
 
+## Customization (Fork & Configure)
+
+**CHAMPION TOGETHER is designed to be forked!** You can create your own fighter support DAO by simply forking this repository and customizing the configuration file.
+
+### Configuration File
+
+All community-specific content (fighter name, DAO name, exclusive content, etc.) is centralized in `frontend/src/config/index.ts`. No backend required!
+
+#### Quick Start
+
+1. Fork this repository
+2. Edit `frontend/src/config/index.ts` with your fighter's information
+3. Deploy to Vercel/Netlify
+4. Done! Your custom fighter DAO is live
+
+#### What You Can Configure
+
+| Section | Description | Examples |
+|---------|-------------|----------|
+| **Site Config** | Site name, DAO name, description | "CHAMPION TOGETHER", "TEAM KENTA DAO" |
+| **Fighter Info** | Name, weight class, gym, organizer, photo, bio | "KENTA TAKAHASHI", "Bantamweight", "STRONG Gym" |
+| **Home Page** | Hero catchphrase, CTA buttons, trust section | "Support the future champion!" |
+| **Support Page** | Page title, descriptions, success/error messages | Custom messages for your community |
+| **Exclusive Content** | Content items (videos, audio, text, codes) | Behind-the-scenes videos, discount codes |
+| **My Page** | Page title, descriptions, footer messages | Personalized supporter experience |
+| **Admin Page** | Alert messages for distribution actions | Success/error notifications |
+| **Ranks** | Rank names, icons, NFT thresholds | Bronze (1+), Silver (5+), Gold (10+) |
+
+#### Configuration Example
+
+```typescript
+// frontend/src/config/index.ts
+export const config: AppConfig = {
+  site: {
+    siteName: "CHAMPION TOGETHER",
+    daoName: "TEAM KENTA DAO",
+    siteDescription: "Supporting fighters through decentralized community funding",
+  },
+  fighter: {
+    name: "KENTA TAKAHASHI",
+    weightClass: "Bantamweight",
+    gym: "STRONG Gym",
+    organizer: "後援会 TEAM ARENA",
+    imageUrl: "https://your-domain.com/fighter.jpg", // Optional
+    bio: "ONE を目指すファイターを、コミュニティで継続的に支える後援会DAOです。",
+  },
+  // ... more configuration
+};
+```
+
+#### Type Safety
+
+All configuration is fully typed with TypeScript. See `frontend/src/config/types.ts` for detailed type definitions. Your IDE will autocomplete and validate all configuration options!
+
+### Adding Exclusive Content
+
+Content items are configured in `exclusiveContentConfig.contentItems`:
+
+```typescript
+contentItems: [
+  {
+    id: "1",
+    title: "Behind the Scenes Training Video",
+    description: "Exclusive look at fight preparation",
+    type: "video",              // "video" | "audio" | "text" | "code" | "image"
+    requiredNft: 10,            // Gold members only
+    content: "https://...",     // URL or actual content
+  },
+  // ... more items
+]
+```
+
 ## Smart Contract Deployment
 
 (To be documented after contract implementation)
