@@ -1,0 +1,15 @@
+{
+  "name": "Update README on Task Complete",
+  "description": "タスク完了時にREADME.mdを更新して、プロジェクトの進捗状況を反映します",
+  "trigger": {
+    "type": "onTaskComplete",
+    "specPath": ".kiro/specs/fighter-support-dao"
+  },
+  "action": {
+    "type": "runAgent",
+    "prompt": "タスク「{{taskName}}」が完了しました。README.mdを以下の観点で更新してください：\n\n1. 完了した機能の説明を追加または更新\n2. 新しく追加されたファイルやコンポーネントのドキュメント化\n3. セットアップ手順や使用方法の更新（必要な場合）\n4. 実装済み機能のリストを更新\n5. 次のステップや未実装機能の明記\n\n簡潔で分かりやすい日本語で記述してください。"
+  },
+  "enabled": true,
+  "showNotification": true,
+  "notificationMessage": "README.md更新の提案を確認してください"
+}
