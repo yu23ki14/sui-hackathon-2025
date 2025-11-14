@@ -2,6 +2,7 @@ import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
 import { Box, Button, Dialog, Flex, Heading, IconButton } from "@radix-ui/themes";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { siteConfig } from "../config";
 
 export function Header() {
   const currentAccount = useCurrentAccount();
@@ -34,7 +35,7 @@ export function Header() {
             size={{ initial: "4", sm: "5", md: "6" }}
             style={{ color: "var(--color-text-primary)" }}
           >
-            CHAMPION TOGETHER
+            {siteConfig.siteName}
           </Heading>
         </Link>
       </Box>

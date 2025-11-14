@@ -1,4 +1,5 @@
 import { Box, Text } from "@radix-ui/themes";
+import { rankConfig } from "../config";
 
 export type Rank = "None" | "Bronze" | "Silver" | "Gold";
 
@@ -7,9 +8,9 @@ interface RankBadgeProps {
 }
 
 export function getRank(nftCount: number): Rank {
-  if (nftCount >= 10) return "Gold";
-  if (nftCount >= 5) return "Silver";
-  if (nftCount >= 1) return "Bronze";
+  if (nftCount >= rankConfig.gold.minNfts) return "Gold";
+  if (nftCount >= rankConfig.silver.minNfts) return "Silver";
+  if (nftCount >= rankConfig.bronze.minNfts) return "Bronze";
   return "None";
 }
 
@@ -44,19 +45,28 @@ const rankStyles = {
   },
 };
 
-const rankConditions = {
-  Gold: "10枚以上",
-  Silver: "5〜9枚",
-  Bronze: "1〜4枚",
-  None: "0枚",
-};
+function getRankConditionText(rank: Rank): string {
+  if (rank === "Gold") return `${rankConfig.gold.minNfts}枚以上`;
+  if (rank === "Silver")
+    return `${rankConfig.silver.minNfts}〜${rankConfig.gold.minNfts - 1}枚`;
+  if (rank === "Bronze")
+    return `${rankConfig.bronze.minNfts}〜${rankConfig.silver.minNfts - 1}枚`;
+  return "0枚";
+}
 
-const rankIcons = {
-  Gold: "👑",
-  Silver: "⭐",
-  Bronze: "🥉",
-  None: "—",
-};
+function getRankIcon(rank: Rank): string {
+  if (rank === "Gold") return rankConfig.gold.icon;
+  if (rank === "Silver") return rankConfig.silver.icon;
+  if (rank === "Bronze") return rankConfig.bronze.icon;
+  return "—";
+}
+
+function getRankLabel(rank: Rank): string {
+  if (rank === "Gold") return rankConfig.gold.label;
+  if (rank === "Silver") return rankConfig.silver.label;
+  if (rank === "Bronze") return rankConfig.bronze.label;
+  return "No Member";
+}
 
 export function RankBadge({ nftCount }: RankBadgeProps) {
   const rank = getRank(nftCount);
@@ -114,7 +124,7 @@ export function RankBadge({ nftCount }: RankBadgeProps) {
             marginBottom: "8px",
           }}
         >
-          {rankIcons[rank]}
+          {getRankIcon(rank)}
         </Text>
 
         {/* ランク名 */}
@@ -129,7 +139,7 @@ export function RankBadge({ nftCount }: RankBadgeProps) {
             letterSpacing: "0.05em",
           }}
         >
-          {rank.toUpperCase()}
+          {getRankLabel(rank).toUpperCase()}
         </Text>
 
         {/* NFT枚数 */}
@@ -165,7 +175,7 @@ export function RankBadge({ nftCount }: RankBadgeProps) {
             opacity: 0.7,
           }}
         >
-          {rankConditions[rank]}
+          {getRankConditionText(rank)}
         </Text>
       </Box>
     </Box>

@@ -1,4 +1,5 @@
 import { Box, Button, Text } from "@radix-ui/themes";
+import { homePageConfig } from "../config";
 
 export function TrustSection() {
   return (
@@ -21,9 +22,7 @@ export function TrustSection() {
           margin: "0 auto 24px",
         }}
       >
-        支援はすべてスマートコントラクトで管理され、
-        「分配頻度・上限額・分配率」はオンチェーンで誰でも確認できます。
-        選手・ジム・後援会、全員にとってフェアな仕組みです。
+        {homePageConfig.trust.description}
       </Text>
 
       <Button
@@ -37,7 +36,7 @@ export function TrustSection() {
           alert("仕組みの詳細ページへ遷移します（未実装）");
         }}
       >
-        仕組みを詳しく見る
+        {homePageConfig.trust.learnMoreButtonText}
       </Button>
     </Box>
   );

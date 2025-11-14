@@ -10,6 +10,7 @@ import {
   useDistributionExecution,
   useEventHistory,
 } from "../hooks";
+import { adminPageConfig } from "../config";
 
 export default function Admin() {
   const { walletAddress } = useWalletConnection();
@@ -42,21 +43,21 @@ export default function Admin() {
   const handleUpdateRules = async (newDetails: typeof distributionDetails) => {
     try {
       await updateSettings(newDetails);
-      alert("分配ルールを更新しました。");
+      alert(adminPageConfig.distributionSettings.updateSuccessMessage);
     } catch (error) {
-      alert("更新に失敗しました。");
+      alert(adminPageConfig.distributionSettings.updateErrorMessage);
     }
   };
 
   const handleDistribute = async () => {
     try {
       await executeDistribute();
-      alert("分配が完了しました。");
+      alert(adminPageConfig.distributionExecution.executeSuccessMessage);
     } catch (error) {
       alert(
         error instanceof Error
           ? error.message
-          : "分配に失敗しました。条件を確認してください。"
+          : adminPageConfig.distributionExecution.executeErrorMessage
       );
     }
   };
@@ -64,10 +65,16 @@ export default function Admin() {
   const handleBonusDistribute = async (amount: number) => {
     try {
       await executeBonusDistribute(amount);
-      alert(`勝利ボーナス ${amount} USDC を分配しました。`);
+      const message = adminPageConfig.distributionExecution.bonusSuccessMessage.replace(
+        "{amount}",
+        amount.toString()
+      );
+      alert(message);
     } catch (error) {
       alert(
-        error instanceof Error ? error.message : "勝利ボーナスの分配に失敗しました。"
+        error instanceof Error
+          ? error.message
+          : adminPageConfig.distributionExecution.bonusErrorMessage
       );
     }
   };

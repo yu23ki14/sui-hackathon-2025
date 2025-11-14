@@ -5,6 +5,7 @@ import { MySummaryCards } from "../components/MySummaryCards";
 import { SupportHistoryTable } from "../components/SupportHistoryTable";
 import { ConnectButton } from "@mysten/dapp-kit";
 import { useWalletConnection, useUserNftData, useSupportHistory } from "../hooks";
+import { myPageConfig, siteConfig } from "../config";
 
 export default function MyPage() {
   const { walletAddress } = useWalletConnection();
@@ -33,7 +34,7 @@ export default function MyPage() {
           }}
         >
           <Heading size="7" mb="4">
-            このページを見るにはウォレット接続が必要です
+            {myPageConfig.walletNotConnectedMessage}
           </Heading>
           <Text
             size="3"
@@ -56,7 +57,7 @@ export default function MyPage() {
       {/* タイトル＆説明 */}
       <Box mb="6">
         <Heading size="8" mb="3">
-          マイサポート
+          {myPageConfig.title}
         </Heading>
         <Text
           size="3"
@@ -66,9 +67,7 @@ export default function MyPage() {
             lineHeight: "1.7",
           }}
         >
-          あなたが TEAM KENTA をどれだけ支えてきたかを確認できます。
-          <br />
-          支援のたびに Members NFT が増え、ランクが上がります。
+          {myPageConfig.description}
         </Text>
       </Box>
 
@@ -90,7 +89,7 @@ export default function MyPage() {
       {/* サポート履歴テーブル */}
       <Box mb="6">
         <Heading size="5" mb="4">
-          サポート履歴
+          {myPageConfig.supportHistory.title}
         </Heading>
         <SupportHistoryTable
           history={supportHistory}
@@ -119,7 +118,7 @@ export default function MyPage() {
               fontWeight: "600",
             }}
           >
-            あなたのサポートが、KENTAの次の一勝をつくります。
+            {myPageConfig.footer.message}
           </Text>
           <Link to="/support" style={{ textDecoration: "none" }}>
             <Button
@@ -129,7 +128,7 @@ export default function MyPage() {
                 color: "var(--color-text-primary)",
               }}
             >
-              もう一度 Support する
+              {myPageConfig.footer.ctaButtonText}
             </Button>
           </Link>
         </Box>
