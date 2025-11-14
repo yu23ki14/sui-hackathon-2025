@@ -160,6 +160,33 @@ export function ContentDetailModal({
                 </Button>
               </Box>
             )}
+
+            {content.type === "image" && (
+              <Box>
+                {content.content ? (
+                  <Box
+                    style={{
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={content.content}
+                      alt={content.title}
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        display: "block",
+                      }}
+                    />
+                  </Box>
+                ) : (
+                  <Text size="2" style={{ color: "var(--color-text-secondary)" }}>
+                    画像URLが設定されていません
+                  </Text>
+                )}
+              </Box>
+            )}
           </Box>
 
           {/* 注意書き */}

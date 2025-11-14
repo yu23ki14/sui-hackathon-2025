@@ -4,7 +4,7 @@ export interface ContentItem {
   id: string;
   title: string;
   description: string;
-  type: "video" | "text" | "audio" | "code";
+  type: "video" | "text" | "audio" | "code" | "image";
   requiredNft: number;
   thumbnailUrl?: string;
   content?: string;
@@ -16,18 +16,20 @@ interface ContentCardProps {
   onClick: () => void;
 }
 
-const typeLabels = {
+const typeLabels: Record<ContentItem["type"], string> = {
   video: "動画",
   text: "テキスト",
   audio: "音声",
   code: "クーポンコード",
+  image: "画像",
 };
 
-const typeIcons = {
+const typeIcons: Record<ContentItem["type"], string> = {
   video: "🎬",
   text: "📝",
   audio: "🎙️",
   code: "🎟️",
+  image: "🖼️",
 };
 
 const rankLabels: Record<number, string> = {

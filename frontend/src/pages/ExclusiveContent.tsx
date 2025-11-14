@@ -11,7 +11,7 @@ import { exclusiveContentConfig } from "../config";
 export default function ExclusiveContent() {
   const { walletAddress } = useWalletConnection();
   const { nftCount } = useUserNftData();
-  const { authenticate, isAuthenticated, isAuthenticating } = useContentAccess();
+  const { authenticate, isAuthenticated } = useContentAccess();
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
