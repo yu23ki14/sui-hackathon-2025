@@ -5,7 +5,7 @@
 /// Rules:
 /// - anyone can create and share a Greeting object
 /// - everyone can update the text of the Greeting object
-module hello_world::greeting {
+module champion_together::greeting {
   use std::string;
 
   /// A shared greeting

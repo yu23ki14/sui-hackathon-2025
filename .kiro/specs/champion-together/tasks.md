@@ -6,7 +6,7 @@
 
 ## Task List
 
-- [ ] 1. プロジェクト構造とMoveコントラクトの基盤セットアップ
+- [x] 1. プロジェクト構造とMoveコントラクトの基盤セットアップ
   - contract/ディレクトリにMove.tomlを設定し、Sui Framework依存関係を追加
   - USDC Testnetトークンアドレスを定数として定義
   - 基本的なエラーコード定数を定義
@@ -38,7 +38,7 @@
     - owner_of、balance_of、get_rank関数のテスト
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 3.2, 3.4_
 
-- [ ] 3. DaoPool Contractの実装
+- [-] 3. DaoPool Contractの実装
   - [ ] 3.1 DaoPoolState構造体を定義
     - id, total_raised, support_cap, last_distribution, distribution_intervalフィールド
     - fighter_address, gym_address, organizer_addressフィールド
