@@ -26,7 +26,7 @@
     - MintEventを発行
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 9.4_
 
-  - [ ] 2.3 owner_of、balance_of、get_rank関数を実装
+  - [ ] 2.3 owner_of、balance_of、get_rank関数、そのほかNFTに必要なRead、Writeの関数を実装
     - owner_of: NFTの所有者アドレスを返す
     - balance_of: 指定アドレスが保有するNFT数を返す
     - get_rank: NFTの会員ランクを返す
