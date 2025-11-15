@@ -13,7 +13,7 @@ CHAMPION TOGETHERは、格闘家とファンを繋ぐ分散型自律組織（DAO
 - **Gym**: 格闘家が所属するジム
 - **Organizer**: 後援会幹事
 - **USDC**: Sui Testnet上のステーブルコイン（支援に使用される通貨）
-- **Member_Rank**: 支援額に応じて決定される会員ランク（Bronze, Silver, Gold, Platinum）
+- **Member_Rank**: 支援額に応じて決定されるランク（Bronze, Silver, Gold, Platinum）
 - **Distribution_Ratio**: 資金分配比率（格闘家、ジム、後援会幹事への配分割合）
 - **Support_Cap**: 支援金の上限額（3,000 USDC）
 - **Distribution_Interval**: 資金分配の実行間隔（30日）
@@ -41,11 +41,11 @@ CHAMPION TOGETHERは、格闘家とファンを繋ぐ分散型自律組織（DAO
 #### Acceptance Criteria
 
 1. WHEN DaoPool_ContractからMint関数が呼び出される, THE MembersNFT_Contract SHALL 新しいNFTをSupporterのウォレットに発行する
-2. THE MembersNFT_Contract SHALL NFTメタデータに支援額、発行日時、Member_Rankを含める
-3. WHEN 支援額が10 USDC以上50 USDC未満である, THE MembersNFT_Contract SHALL Member_RankをBronzeに設定する
-4. WHEN 支援額が50 USDC以上100 USDC未満である, THE MembersNFT_Contract SHALL Member_RankをSilverに設定する
-5. WHEN 支援額が100 USDC以上200 USDC未満である, THE MembersNFT_Contract SHALL Member_RankをGoldに設定する
-6. WHEN 支援額が200 USDC以上である, THE MembersNFT_Contract SHALL Member_RankをPlatinumに設定する
+2. THE MembersNFT_Contract SHALL NFTメタデータに支援額、発行日時、Rankを含める
+3. WHEN 支援額が10 USDC以上50 USDC未満である, THE MembersNFT_Contract SHALL RankをBronzeに設定する
+4. WHEN 支援額が50 USDC以上100 USDC未満である, THE MembersNFT_Contract SHALL RankをSilverに設定する
+5. WHEN 支援額が100 USDC以上200 USDC未満である, THE MembersNFT_Contract SHALL RankをGoldに設定する
+6. WHEN 支援額が200 USDC以上である, THE MembersNFT_Contract SHALL RankをPlatinumに設定する
 7. THE MembersNFT_Contract SHALL 各NFTに一意のトークンIDを割り当てる
 
 ### Requirement 3: NFT所有情報の照会

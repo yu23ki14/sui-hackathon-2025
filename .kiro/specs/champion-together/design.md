@@ -196,7 +196,7 @@ struct MemberNFT has key, store {
     id: UID,
     token_id: u64,                  // トークンID
     support_amount: u64,            // 支援額
-    rank: String,                   // 会員ランク（Bronze, Silver, Gold, Platinum）
+    rank: String,                   // ランク（Bronze, Silver, Gold, Platinum）
     minted_at: u64,                 // 発行日時
     image_url: String,              // NFT画像URL
 }
@@ -243,6 +243,8 @@ public fun balance_of(owner: address, ctx: &TxContext): u64
 public fun get_rank(nft: &MemberNFT): String
 ```
 - NFTの会員ランクを返す
+
+基本的なNFTコントラクトに必要なその他の関数。
 
 #### Events
 
