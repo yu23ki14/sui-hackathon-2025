@@ -12,13 +12,13 @@
   - 基本的なエラーコード定数を定義
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 2. MembersNFT Contractの実装
-  - [ ] 2.1 MembersNFTStateとMemberNFT構造体を定義
+- [x] 2. MembersNFT Contractの実装
+  - [x] 2.1 MembersNFTStateとMemberNFT構造体を定義
     - MembersNFTState: id, token_counter, dao_pool_idフィールド
     - MemberNFT: id, token_id, support_amount, rank, minted_at, image_urlフィールド
     - _Requirements: 2.2, 2.7_
 
-  - [ ] 2.2 mint関数を実装
+  - [x] 2.2 mint関数を実装
     - 呼び出し元がdao_pool_idと一致することを検証
     - 支援額に基づいてランクを決定（Bronze: 10-49, Silver: 50-99, Gold: 100-199, Platinum: 200+）
     - token_counterをインクリメント
@@ -26,13 +26,13 @@
     - MintEventを発行
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 9.4_
 
-  - [ ] 2.3 owner_of、balance_of、get_rank関数、そのほかNFTに必要なRead、Writeの関数を実装
+  - [x] 2.3 owner_of、balance_of、get_rank関数、そのほかNFTに必要なRead、Writeの関数を実装
     - owner_of: NFTの所有者アドレスを返す
     - balance_of: 指定アドレスが保有するNFT数を返す
     - get_rank: NFTの会員ランクを返す
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-  - [ ]* 2.4 MembersNFT Contractのユニットテストを作成
+  - [x] 2.4 MembersNFT Contractのユニットテストを作成
     - mint関数の各ランクテスト（Bronze, Silver, Gold, Platinum）
     - 権限なしでのmint呼び出しテスト（エラー期待）
     - owner_of、balance_of、get_rank関数のテスト
@@ -79,13 +79,13 @@
     - change_distribution_detail関数: 正常系、権限なし、無効な比率
     - _Requirements: 1.1, 1.2, 1.3, 4.1, 4.2, 4.6, 5.1, 5.2, 5.5_
 
-  - [ ]* 3.6 統合テストを作成
+  - [x] 3.6 統合テストを作成
     - support → mint の連携テスト
     - 複数回の支援とNFT発行テスト
     - distribute の資金分配フローテスト
     - _Requirements: 1.4, 4.3, 4.4, 4.5_
 
-- [ ] 4. Sui Testnetへのコントラクトデプロイ
+- [x] 4. Sui Testnetへのコントラクトデプロイ
   - sui client publishコマンドでDaoPoolとMembersNFTをデプロイ
   - デプロイ後のPackage IDとObject IDを記録
   - DaoPoolStateを初期化（support_cap: 3,000 USDC、distribution_interval: 30日、初期配分比率）
