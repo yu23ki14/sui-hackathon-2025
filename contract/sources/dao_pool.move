@@ -11,6 +11,7 @@ module champion_together::dao_pool {
     use sui::object::UID;
     use sui::tx_context::TxContext;
     use sui::transfer;
+    use sui::sui::SUI;
     use std::option::Option;
     use champion_together::utils_constants as constants;
 
@@ -26,7 +27,8 @@ module champion_together::dao_pool {
 
     /// DaoPoolコントラクトのメイン状態オブジェクト
     /// 支援金、分配設定、受取人情報を管理
-    public struct DaoPoolState has key {
+    /// 型パラメータTは任意のコイン型（USDC、SUI等）をサポート
+    public struct DaoPoolState<phantom T> has key {
         id: UID,
         /// 現在の分配サイクルで集まった総額（マイクロUSDC）
         total_raised: u64,
@@ -48,11 +50,12 @@ module champion_together::dao_pool {
         gym_ratio: u64,
         /// 主催者の分配比率（例: 10 = 10%）
         organizer_ratio: u64,
-        /// USDCを保持するトレジャリー残高
-        treasury: Balance<USDC>,
+        /// 任意のコイン型を保持するトレジャリー残高
+        treasury: Balance<T>,
     }
 
     /// プレースホルダーUSDC型 - 実際のUSDCトークン型に置き換えられる
+    /// 注: ジェネリック型パラメータを使用する場合、この構造体は不要
     public struct USDC has drop {}
 
     // ===== イベント =====
@@ -92,7 +95,7 @@ module champion_together::dao_pool {
 
     /// 新しいDaoPool状態を初期化
     /// コントラクトデプロイ時に一度だけ呼び出される
-    public fun init_pool(
+    public fun init_pool<T>(
         fighter_address: address,
         gym_address: address,
         organizer_address: address,
@@ -101,7 +104,7 @@ module champion_together::dao_pool {
         organizer_ratio: u64,
         clock: &Clock,
         ctx: &mut TxContext
-    ): DaoPoolState {
+    ): DaoPoolState<T> {
         // 比率の合計が100であることを検証
         assert!(fighter_ratio + gym_ratio + organizer_ratio == 100, E_INVALID_RATIO);
 
@@ -117,16 +120,55 @@ module champion_together::dao_pool {
             fighter_ratio,
             gym_ratio,
             organizer_ratio,
-            treasury: balance::zero<USDC>(),
+            treasury: balance::zero<T>(),
         }
+    }
+
+    /// 任意のコイン型でDaoPoolStateを作成して共有オブジェクトとして公開
+    /// 
+    /// # Type Parameters
+    /// * `T` - コイン型（例: `0x2::sui::SUI`, `0x...::usdc::USDC`）
+    /// 
+    /// # Arguments
+    /// * `fighter_address` - 格闘家のウォレットアドレス
+    /// * `gym_address` - ジムのウォレットアドレス
+    /// * `organizer_address` - 主催者のウォレットアドレス
+    /// * `fighter_ratio` - 格闘家の分配比率（例: 60 = 60%）
+    /// * `gym_ratio` - ジムの分配比率（例: 30 = 30%）
+    /// * `organizer_ratio` - 主催者の分配比率（例: 10 = 10%）
+    /// * `clock` - Clockオブジェクト
+    /// * `ctx` - トランザクションコンテキスト
+    public entry fun create_pool<T>(
+        fighter_address: address,
+        gym_address: address,
+        organizer_address: address,
+        fighter_ratio: u64,
+        gym_ratio: u64,
+        organizer_ratio: u64,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let pool = init_pool<T>(
+            fighter_address,
+            gym_address,
+            organizer_address,
+            fighter_ratio,
+            gym_ratio,
+            organizer_ratio,
+            clock,
+            ctx
+        );
+        transfer::share_object(pool);
     }
 
     /// モジュール初期化関数 - パッケージ公開時に自動実行
     /// DaoPoolStateを共有オブジェクトとして作成
+    /// デフォルトでSUI型を使用
     /// 注: 初期値は後でupdate_config関数で変更可能
     fun init(ctx: &mut TxContext) {
         // デフォルト値で初期化（後で変更可能）
-        let state = DaoPoolState {
+        // SUI型をデフォルトのコイン型として使用
+        let state = DaoPoolState<SUI> {
             id: object::new(ctx),
             total_raised: 0,
             support_cap: constants::default_support_cap(),
@@ -138,18 +180,21 @@ module champion_together::dao_pool {
             fighter_ratio: 60,
             gym_ratio: 30,
             organizer_ratio: 10,
-            treasury: balance::zero<USDC>(),
+            treasury: balance::zero<SUI>(),
         };
         transfer::share_object(state);
     }
 
-    /// 支援関数 - 支援者からのUSDC貢献を受け付ける
+    /// 支援関数 - 支援者からの任意のコイン型での貢献を受け付ける
     /// 金額と上限を検証し、トレジャリーに追加し、NFTミントをトリガー
     /// 要件: 1.1, 1.2, 1.3, 1.4, 1.5, 9.1, 9.2
-    public entry fun support(
-        state: &mut DaoPoolState,
+    /// 
+    /// # Type Parameters
+    /// * `T` - コイン型（例: `0x2::sui::SUI`, `0x...::usdc::USDC`）
+    public entry fun support<T>(
+        state: &mut DaoPoolState<T>,
         nft_state: &mut champion_together::member_nft::MembersNFTState,
-        payment: Coin<USDC>,
+        payment: Coin<T>,
         clock: &Clock,
         ctx: &mut TxContext
     ) {
@@ -164,7 +209,7 @@ module champion_together::dao_pool {
         // 要件 1.2, 1.3: 支援上限を超えていないことを検証
         assert!(state.total_raised + amount <= state.support_cap, E_SUPPORT_CAP_REACHED);
 
-        // 要件 1.1: USDCをトレジャリーに追加
+        // 要件 1.1: 任意のコイン型をトレジャリーに追加
         let payment_balance = coin::into_balance(payment);
         balance::join(&mut state.treasury, payment_balance);
 
@@ -185,8 +230,11 @@ module champion_together::dao_pool {
     /// 分配関数 - トレジャリー資金を受取人に分配
     /// 分配間隔が経過した後にのみ呼び出し可能
     /// 要件: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6
-    public entry fun distribute(
-        state: &mut DaoPoolState,
+    /// 
+    /// # Type Parameters
+    /// * `T` - コイン型（例: `0x2::sui::SUI`, `0x...::usdc::USDC`）
+    public entry fun distribute<T>(
+        state: &mut DaoPoolState<T>,
         clock: &Clock,
         ctx: &mut TxContext
     ) {
@@ -209,7 +257,7 @@ module champion_together::dao_pool {
         let organizer_amount = (treasury_balance * state.organizer_ratio) / 100;
         
         // 要件 4.3: 各受取人に転送
-        // トレジャリーからコインを抽出して転送
+        // トレジャリーからBalance<T>を分割してCoin<T>に変換して転送
         let fighter_balance = balance::split(&mut state.treasury, fighter_amount);
         let fighter_coin = coin::from_balance(fighter_balance, ctx);
         transfer::public_transfer(fighter_coin, state.fighter_address);
@@ -244,8 +292,12 @@ module champion_together::dao_pool {
     /// 勝利ボーナス分配 - トレジャリーから指定額を分配
     /// 主催者のみが呼び出し可能
     /// 通常の分配とは異なり、任意のタイミングで実行可能
-    public entry fun distribute_bonus(
-        state: &mut DaoPoolState,
+    /// 要件: 1.1, 1.4, 5.1, 5.2, 5.3, 5.4, 5.5
+    /// 
+    /// # Type Parameters
+    /// * `T` - コイン型（例: `0x2::sui::SUI`, `0x...::usdc::USDC`）
+    public entry fun distribute_bonus<T>(
+        state: &mut DaoPoolState<T>,
         bonus_amount: u64,
         clock: &Clock,
         ctx: &mut TxContext
@@ -254,20 +306,21 @@ module champion_together::dao_pool {
 
         let caller = tx_context::sender(ctx);
 
-        // 主催者のみが実行可能
+        // 要件 5.1: 主催者のみが実行可能
         assert!(caller == state.organizer_address, E_UNAUTHORIZED);
 
         let treasury_balance = balance::value(&state.treasury);
 
-        // トレジャリーに十分な残高があることを確認
+        // 要件 5.2: トレジャリーに十分な残高があることを確認
         assert!(treasury_balance >= bonus_amount, E_INSUFFICIENT_AMOUNT);
 
-        // 比率に基づいて分配額を計算
+        // 要件 5.3: 比率に基づいて分配額を計算
         let fighter_amount = (bonus_amount * state.fighter_ratio) / 100;
         let gym_amount = (bonus_amount * state.gym_ratio) / 100;
         let organizer_amount = (bonus_amount * state.organizer_ratio) / 100;
 
-        // 各受取人に転送
+        // 要件 5.4, 1.1, 1.4: 各受取人に型パラメータTを使用して転送
+        // トレジャリーからBalance<T>を分割してCoin<T>に変換して転送
         let fighter_balance = balance::split(&mut state.treasury, fighter_amount);
         let fighter_coin = coin::from_balance(fighter_balance, ctx);
         transfer::public_transfer(fighter_coin, state.fighter_address);
@@ -280,7 +333,7 @@ module champion_together::dao_pool {
         let organizer_coin = coin::from_balance(organizer_balance, ctx);
         transfer::public_transfer(organizer_coin, state.organizer_address);
 
-        // ボーナス分配イベントを発行
+        // 要件 5.5: ボーナス分配イベントを発行
         event::emit(BonusDistributionEvent {
             bonus_amount,
             fighter_amount,
@@ -292,9 +345,12 @@ module champion_together::dao_pool {
 
     /// 分配詳細変更 - 受取人アドレスおよび/または分配比率を更新
     /// 主催者のみが呼び出し可能
-    /// 要件: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 9.5
-    public entry fun change_distribution_detail(
-        state: &mut DaoPoolState,
+    /// 要件: 2.4
+    /// 
+    /// # Type Parameters
+    /// * `T` - コイン型（例: `0x2::sui::SUI`, `0x...::usdc::USDC`）
+    public entry fun change_distribution_detail<T>(
+        state: &mut DaoPoolState<T>,
         new_fighter_address: Option<address>,
         new_gym_address: Option<address>,
         new_organizer_address: Option<address>,
@@ -372,52 +428,52 @@ module champion_together::dao_pool {
     // ===== ビュー関数 =====
 
     /// 総調達額を取得
-    public fun total_raised(state: &DaoPoolState): u64 {
+    public fun total_raised<T>(state: &DaoPoolState<T>): u64 {
         state.total_raised
     }
 
     /// 支援上限額を取得
-    public fun support_cap(state: &DaoPoolState): u64 {
+    public fun support_cap<T>(state: &DaoPoolState<T>): u64 {
         state.support_cap
     }
 
     /// トレジャリー残高を取得
-    public fun treasury_balance(state: &DaoPoolState): u64 {
+    public fun treasury_balance<T>(state: &DaoPoolState<T>): u64 {
         balance::value(&state.treasury)
     }
 
     /// 最後の分配タイムスタンプを取得
-    public fun last_distribution(state: &DaoPoolState): u64 {
+    public fun last_distribution<T>(state: &DaoPoolState<T>): u64 {
         state.last_distribution
     }
 
     /// 分配間隔を取得
-    public fun distribution_interval(state: &DaoPoolState): u64 {
+    public fun distribution_interval<T>(state: &DaoPoolState<T>): u64 {
         state.distribution_interval
     }
 
     /// 格闘家アドレスを取得
-    public fun fighter_address(state: &DaoPoolState): address {
+    public fun fighter_address<T>(state: &DaoPoolState<T>): address {
         state.fighter_address
     }
 
     /// ジムアドレスを取得
-    public fun gym_address(state: &DaoPoolState): address {
+    public fun gym_address<T>(state: &DaoPoolState<T>): address {
         state.gym_address
     }
 
     /// 主催者アドレスを取得
-    public fun organizer_address(state: &DaoPoolState): address {
+    public fun organizer_address<T>(state: &DaoPoolState<T>): address {
         state.organizer_address
     }
 
     /// 分配比率を取得
-    public fun distribution_ratios(state: &DaoPoolState): (u64, u64, u64) {
+    public fun distribution_ratios<T>(state: &DaoPoolState<T>): (u64, u64, u64) {
         (state.fighter_ratio, state.gym_ratio, state.organizer_ratio)
     }
 
     /// 指定されたアドレスが管理者（主催者）かどうかを確認
-    public fun is_admin(state: &DaoPoolState, user: address): bool {
+    public fun is_admin<T>(state: &DaoPoolState<T>, user: address): bool {
         user == state.organizer_address
     }
 
@@ -435,7 +491,7 @@ module champion_together::dao_pool {
     }
 
     /// 分配設定を一括取得
-    public fun get_distribution_config(state: &DaoPoolState): DistributionConfig {
+    public fun get_distribution_config<T>(state: &DaoPoolState<T>): DistributionConfig {
         DistributionConfig {
             support_cap: state.support_cap,
             last_distribution: state.last_distribution,

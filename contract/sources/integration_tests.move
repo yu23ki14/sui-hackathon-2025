@@ -38,8 +38,8 @@ module champion_together::integration_tests {
         ts::begin(ORGANIZER)
     }
 
-    fun init_dao_pool(scenario: &mut Scenario, clock: &Clock): DaoPoolState {
-        dao_pool::init_pool(
+    fun init_dao_pool(scenario: &mut Scenario, clock: &Clock): DaoPoolState<USDC> {
+        dao_pool::init_pool<USDC>(
             FIGHTER,
             GYM,
             ORGANIZER,
@@ -71,11 +71,11 @@ module champion_together::integration_tests {
         // 支援者が100 USDCを支援
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         // DaoPoolの状態を検証
-        assert!(dao_pool::total_raised(&pool) == HUNDRED_USDC, 0);
-        assert!(dao_pool::treasury_balance(&pool) == HUNDRED_USDC, 1);
+        assert!(dao_pool::total_raised<USDC>(&pool) == HUNDRED_USDC, 0);
+        assert!(dao_pool::treasury_balance<USDC>(&pool) == HUNDRED_USDC, 1);
 
         // NFTが発行されたことを検証
         assert!(member_nft::total_supply(&nft_state) == 1, 2);
@@ -110,17 +110,17 @@ module champion_together::integration_tests {
         // Bronze: 10 USDC
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(TEN_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         // Silver: 50 USDC
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(FIFTY_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         // Platinum: 200 USDC
         ts::next_tx(&mut scenario, SUPPORTER3);
         let payment3 = mint_usdc(TWO_HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
 
         // 3つのNFTが発行されたことを確認
         assert!(member_nft::total_supply(&nft_state) == 3, 0);
@@ -173,7 +173,7 @@ module champion_together::integration_tests {
         // 1回目の支援: 50 USDC (Silver)
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(FIFTY_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         // 1つ目のNFTを確認
         ts::next_tx(&mut scenario, SUPPORTER1);
@@ -187,7 +187,7 @@ module champion_together::integration_tests {
         // 2回目の支援: 100 USDC (Gold)
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment2 = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         // 2つ目のNFTを確認
         ts::next_tx(&mut scenario, SUPPORTER1);
@@ -201,7 +201,7 @@ module champion_together::integration_tests {
         // 3回目の支援: 200 USDC (Platinum)
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment3 = mint_usdc(TWO_HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
 
         // 3つ目のNFTを確認
         ts::next_tx(&mut scenario, SUPPORTER1);
@@ -214,7 +214,7 @@ module champion_together::integration_tests {
 
         // 総支援額を検証
         let total_supported = FIFTY_USDC + HUNDRED_USDC + TWO_HUNDRED_USDC;
-        assert!(dao_pool::total_raised(&pool) == total_supported, 0);
+        assert!(dao_pool::total_raised<USDC>(&pool) == total_supported, 0);
 
         // 3つのNFTが発行されたことを確認
         assert!(member_nft::total_supply(&nft_state) == 3, 1);
@@ -238,18 +238,18 @@ module champion_together::integration_tests {
         // 5人の支援者がそれぞれ支援
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         ts::next_tx(&mut scenario, SUPPORTER3);
         let payment3 = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
 
         // 総支援額を検証
-        assert!(dao_pool::total_raised(&pool) == 3 * HUNDRED_USDC, 0);
+        assert!(dao_pool::total_raised<USDC>(&pool) == 3 * HUNDRED_USDC, 0);
 
         // 3つのNFTが発行されたことを確認
         assert!(member_nft::total_supply(&nft_state) == 3, 1);
@@ -297,29 +297,29 @@ module champion_together::integration_tests {
         // 複数の支援者が支援
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(FIVE_HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(FIVE_HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         // 総支援額を検証
         let total_supported = THOUSAND_USDC;
-        assert!(dao_pool::total_raised(&pool) == total_supported, 0);
-        assert!(dao_pool::treasury_balance(&pool) == total_supported, 1);
+        assert!(dao_pool::total_raised<USDC>(&pool) == total_supported, 0);
+        assert!(dao_pool::treasury_balance<USDC>(&pool) == total_supported, 1);
 
         // 30日進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         // 分配を実行
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         // 分配後の状態を検証
-        assert!(dao_pool::total_raised(&pool) == 0, 2); // リセットされた
+        assert!(dao_pool::total_raised<USDC>(&pool) == 0, 2); // リセットされた
         
         // トレジャリーには端数処理による最小限のダストがあるはず
-        let remaining = dao_pool::treasury_balance(&pool);
+        let remaining = dao_pool::treasury_balance<USDC>(&pool);
         assert!(remaining < 10, 3);
 
         // NFTは保持されている
@@ -344,28 +344,28 @@ module champion_together::integration_tests {
         // サイクル1: 支援と分配
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(FIVE_HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
-        assert!(dao_pool::total_raised(&pool) == 0, 0);
+        assert!(dao_pool::total_raised<USDC>(&pool) == 0, 0);
 
         // サイクル2: 再度支援と分配
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(FIVE_HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
-        assert!(dao_pool::total_raised(&pool) == FIVE_HUNDRED_USDC, 1);
+        assert!(dao_pool::total_raised<USDC>(&pool) == FIVE_HUNDRED_USDC, 1);
 
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
-        assert!(dao_pool::total_raised(&pool) == 0, 2);
+        assert!(dao_pool::total_raised<USDC>(&pool) == 0, 2);
 
         // 2つのNFTが発行されたことを確認
         assert!(member_nft::total_supply(&nft_state) == 2, 3);
@@ -389,26 +389,26 @@ module champion_together::integration_tests {
         // 上限まで支援
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THREE_THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
-        assert!(dao_pool::total_raised(&pool) == THREE_THOUSAND_USDC, 0);
+        assert!(dao_pool::total_raised<USDC>(&pool) == THREE_THOUSAND_USDC, 0);
 
         // 30日進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         // 分配を実行
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         // 分配後、再度支援可能になることを確認
-        assert!(dao_pool::total_raised(&pool) == 0, 1);
+        assert!(dao_pool::total_raised<USDC>(&pool) == 0, 1);
 
         // 新しい支援が可能
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
-        assert!(dao_pool::total_raised(&pool) == HUNDRED_USDC, 2);
+        assert!(dao_pool::total_raised<USDC>(&pool) == HUNDRED_USDC, 2);
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -429,16 +429,16 @@ module champion_together::integration_tests {
         // 計算しやすい金額で支援
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
-        let initial_treasury = dao_pool::treasury_balance(&pool);
+        let initial_treasury = dao_pool::treasury_balance<USDC>(&pool);
 
         // 30日進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         // 分配を実行
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         // 期待される配分額を計算
         // Fighter: 60% = 600 USDC
@@ -454,7 +454,7 @@ module champion_together::integration_tests {
         assert!(total_distributed <= initial_treasury, 0);
 
         // 残りは端数処理によるダスト
-        let remaining = dao_pool::treasury_balance(&pool);
+        let remaining = dao_pool::treasury_balance<USDC>(&pool);
         assert!(remaining == initial_treasury - total_distributed, 1);
 
         test_utils::destroy(nft_state);
@@ -476,18 +476,18 @@ module champion_together::integration_tests {
         // 複数の支援者が上限まで支援
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         ts::next_tx(&mut scenario, SUPPORTER3);
         let payment3 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment3, &clock, ts::ctx(&mut scenario));
 
         // 上限に達したことを確認
-        assert!(dao_pool::total_raised(&pool) == THREE_THOUSAND_USDC, 0);
+        assert!(dao_pool::total_raised<USDC>(&pool) == THREE_THOUSAND_USDC, 0);
 
         // 3つのNFTが発行されたことを確認
         assert!(member_nft::total_supply(&nft_state) == 3, 1);
@@ -497,10 +497,10 @@ module champion_together::integration_tests {
 
         // 分配を実行
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         // 分配後、total_raisedがリセットされたことを確認
-        assert!(dao_pool::total_raised(&pool) == 0, 2);
+        assert!(dao_pool::total_raised<USDC>(&pool) == 0, 2);
 
         // NFTは保持されている
         assert!(member_nft::total_supply(&nft_state) == 3, 3);
