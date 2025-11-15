@@ -349,6 +349,9 @@ module champion_together::dao_pool {
     /// 
     /// # Type Parameters
     /// * `T` - コイン型（例: `0x2::sui::SUI`, `0x...::usdc::USDC`）
+    /// 
+    /// # Arguments
+    /// * `new_distribution_interval` - 新しい分配間隔（ミリ秒）。デモ用に短く設定可能（例: 60000 = 1分）
     public entry fun change_distribution_detail<T>(
         state: &mut DaoPoolState<T>,
         new_fighter_address: Option<address>,
@@ -357,6 +360,7 @@ module champion_together::dao_pool {
         new_fighter_ratio: Option<u64>,
         new_gym_ratio: Option<u64>,
         new_organizer_ratio: Option<u64>,
+        new_distribution_interval: Option<u64>,
         clock: &Clock,
         ctx: &mut TxContext
     ) {
@@ -417,6 +421,13 @@ module champion_together::dao_pool {
         state.fighter_ratio = fighter_ratio;
         state.gym_ratio = gym_ratio;
         state.organizer_ratio = organizer_ratio;
+        
+        // 分配間隔を更新（指定されている場合）
+        if (option::is_some(&new_distribution_interval)) {
+            state.distribution_interval = option::destroy_some(new_distribution_interval);
+        } else {
+            option::destroy_none(new_distribution_interval);
+        };
         
         // 要件 5.6: 設定変更イベントを発行
         event::emit(ConfigChangeEvent {
