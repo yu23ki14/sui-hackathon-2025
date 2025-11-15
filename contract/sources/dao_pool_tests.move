@@ -31,8 +31,8 @@ module champion_together::dao_pool_tests {
     }
 
     // デフォルト設定でDaoPoolを初期化するヘルパー関数
-    fun init_dao_pool(scenario: &mut Scenario, clock: &Clock): DaoPoolState {
-        dao_pool::init_pool(
+    fun init_dao_pool(scenario: &mut Scenario, clock: &Clock): DaoPoolState<USDC> {
+        dao_pool::init_pool<USDC>(
             FIGHTER,
             GYM,
             ORGANIZER,
@@ -68,11 +68,11 @@ module champion_together::dao_pool_tests {
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
 
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         // 状態の更新を検証
-        assert!(dao_pool::total_raised(&pool) == HUNDRED_USDC, 0);
-        assert!(dao_pool::treasury_balance(&pool) == HUNDRED_USDC, 1);
+        assert!(dao_pool::total_raised<USDC>(&pool) == HUNDRED_USDC, 0);
+        assert!(dao_pool::treasury_balance<USDC>(&pool) == HUNDRED_USDC, 1);
 
         // クリーンアップ
         test_utils::destroy(nft_state);
@@ -96,16 +96,16 @@ module champion_together::dao_pool_tests {
         // 最初の支援者
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         // 2番目の支援者
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         // 合計を検証
-        assert!(dao_pool::total_raised(&pool) == 2 * THOUSAND_USDC, 0);
-        assert!(dao_pool::treasury_balance(&pool) == 2 * THOUSAND_USDC, 1);
+        assert!(dao_pool::total_raised<USDC>(&pool) == 2 * THOUSAND_USDC, 0);
+        assert!(dao_pool::treasury_balance<USDC>(&pool) == 2 * THOUSAND_USDC, 1);
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -130,7 +130,7 @@ module champion_together::dao_pool_tests {
         let payment = mint_usdc(0, ts::ctx(&mut scenario));
 
         // E_INSUFFICIENT_AMOUNTでアボートするはず
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -154,14 +154,14 @@ module champion_together::dao_pool_tests {
         // 上限までの最初の貢献
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(THREE_THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
 
         // 2回目の貢献は失敗するはず
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(ONE_USDC, ts::ctx(&mut scenario));
 
         // E_SUPPORT_CAP_REACHEDでアボートするはず
-        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -187,7 +187,7 @@ module champion_together::dao_pool_tests {
         let payment = mint_usdc(THREE_THOUSAND_USDC + 1, ts::ctx(&mut scenario));
 
         // E_SUPPORT_CAP_REACHEDでアボートするはず
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -212,20 +212,20 @@ module champion_together::dao_pool_tests {
         // トレジャリーに資金を追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         // 30日進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         // 資金を分配
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         // 分配後の状態を検証
-        assert!(dao_pool::total_raised(&pool) == 0, 0); // 0にリセット
+        assert!(dao_pool::total_raised<USDC>(&pool) == 0, 0); // 0にリセット
 
         // トレジャリーには端数処理による最小限のダストがあるはず
-        let remaining = dao_pool::treasury_balance(&pool);
+        let remaining = dao_pool::treasury_balance<USDC>(&pool);
         assert!(remaining < 10, 1); // 10マイクロUSDC未満のダスト
 
         test_utils::destroy(nft_state);
@@ -250,13 +250,13 @@ module champion_together::dao_pool_tests {
         // 資金を追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         // すぐに分配を試みる（失敗するはず）
         ts::next_tx(&mut scenario, ORGANIZER);
 
         // E_DISTRIBUTION_TOO_EARLYでアボートするはず
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -280,7 +280,7 @@ module champion_together::dao_pool_tests {
         // 資金を追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
         // 30日マイナス1ミリ秒進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS - 1);
@@ -288,7 +288,7 @@ module champion_together::dao_pool_tests {
         ts::next_tx(&mut scenario, ORGANIZER);
 
         // E_DISTRIBUTION_TOO_EARLYでアボートするはず
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         test_utils::destroy(nft_state);
         test_utils::destroy(pool);
@@ -312,7 +312,7 @@ module champion_together::dao_pool_tests {
         ts::next_tx(&mut scenario, ORGANIZER);
         
         // E_EMPTY_TREASURYでアボートするはず
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
         
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
@@ -334,16 +334,16 @@ module champion_together::dao_pool_tests {
         // 計算しやすいように正確に1000 USDCを追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+        dao_pool::support<USDC>(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
 
-        let initial_treasury = dao_pool::treasury_balance(&pool);
+        let initial_treasury = dao_pool::treasury_balance<USDC>(&pool);
 
         // 時間を進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
 
         // 分配
         ts::next_tx(&mut scenario, ORGANIZER);
-        dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
+        dao_pool::distribute<USDC>(&mut pool, &clock, ts::ctx(&mut scenario));
 
         // 期待される金額: 格闘家 60%、ジム 30%、主催者 10%
         // 格闘家: 600 USDC、ジム: 300 USDC、主催者: 100 USDC
@@ -382,7 +382,7 @@ module champion_together::dao_pool_tests {
         let new_gym_ratio = std::option::some(40u64);
         let new_organizer_ratio = std::option::some(10u64);
         
-        dao_pool::change_distribution_detail(
+        dao_pool::change_distribution_detail<USDC>(
             &mut pool,
             new_fighter_address,
             new_gym_address,
@@ -395,10 +395,10 @@ module champion_together::dao_pool_tests {
         );
         
         // 変更を検証
-        assert!(dao_pool::fighter_address(&pool) == @0xABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890, 0);
-        assert!(dao_pool::gym_address(&pool) == GYM, 1); // 変更なし
+        assert!(dao_pool::fighter_address<USDC>(&pool) == @0xABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890, 0);
+        assert!(dao_pool::gym_address<USDC>(&pool) == GYM, 1); // 変更なし
         
-        let (f_ratio, g_ratio, o_ratio) = dao_pool::distribution_ratios(&pool);
+        let (f_ratio, g_ratio, o_ratio) = dao_pool::distribution_ratios<USDC>(&pool);
         assert!(f_ratio == 50, 2);
         assert!(g_ratio == 40, 3);
         assert!(o_ratio == 10, 4);
@@ -426,7 +426,7 @@ module champion_together::dao_pool_tests {
         let new_organizer_ratio = std::option::some(10u64);
         
         // E_UNAUTHORIZEDでアボートするはず
-        dao_pool::change_distribution_detail(
+        dao_pool::change_distribution_detail<USDC>(
             &mut pool,
             std::option::none(),
             std::option::none(),
@@ -461,7 +461,7 @@ module champion_together::dao_pool_tests {
         let new_organizer_ratio = std::option::some(10u64);
         
         // E_INVALID_RATIOでアボートするはず
-        dao_pool::change_distribution_detail(
+        dao_pool::change_distribution_detail<USDC>(
             &mut pool,
             std::option::none(),
             std::option::none(),
@@ -496,7 +496,7 @@ module champion_together::dao_pool_tests {
         let new_organizer_ratio = std::option::some(10u64);
         
         // E_INVALID_RATIOでアボートするはず
-        dao_pool::change_distribution_detail(
+        dao_pool::change_distribution_detail<USDC>(
             &mut pool,
             std::option::none(),
             std::option::none(),
@@ -525,7 +525,7 @@ module champion_together::dao_pool_tests {
         ts::next_tx(&mut scenario, ORGANIZER);
         
         // すべてのアドレスを変更、比率は維持
-        dao_pool::change_distribution_detail(
+        dao_pool::change_distribution_detail<USDC>(
             &mut pool,
             std::option::some(@0x1111111111111111111111111111111111111111111111111111111111111111),
             std::option::some(@0x2222222222222222222222222222222222222222222222222222222222222222),
@@ -538,12 +538,12 @@ module champion_together::dao_pool_tests {
         );
         
         // アドレスが変更されたことを検証
-        assert!(dao_pool::fighter_address(&pool) == @0x1111111111111111111111111111111111111111111111111111111111111111, 0);
-        assert!(dao_pool::gym_address(&pool) == @0x2222222222222222222222222222222222222222222222222222222222222222, 1);
-        assert!(dao_pool::organizer_address(&pool) == @0x3333333333333333333333333333333333333333333333333333333333333333, 2);
+        assert!(dao_pool::fighter_address<USDC>(&pool) == @0x1111111111111111111111111111111111111111111111111111111111111111, 0);
+        assert!(dao_pool::gym_address<USDC>(&pool) == @0x2222222222222222222222222222222222222222222222222222222222222222, 1);
+        assert!(dao_pool::organizer_address<USDC>(&pool) == @0x3333333333333333333333333333333333333333333333333333333333333333, 2);
         
         // 比率が変更されていないことを検証
-        let (f_ratio, g_ratio, o_ratio) = dao_pool::distribution_ratios(&pool);
+        let (f_ratio, g_ratio, o_ratio) = dao_pool::distribution_ratios<USDC>(&pool);
         assert!(f_ratio == 60, 3);
         assert!(g_ratio == 30, 4);
         assert!(o_ratio == 10, 5);
@@ -565,7 +565,7 @@ module champion_together::dao_pool_tests {
         ts::next_tx(&mut scenario, ORGANIZER);
         
         // 比率を変更、アドレスは維持
-        dao_pool::change_distribution_detail(
+        dao_pool::change_distribution_detail<USDC>(
             &mut pool,
             std::option::none(),
             std::option::none(),
@@ -578,12 +578,12 @@ module champion_together::dao_pool_tests {
         );
         
         // アドレスが変更されていないことを検証
-        assert!(dao_pool::fighter_address(&pool) == FIGHTER, 0);
-        assert!(dao_pool::gym_address(&pool) == GYM, 1);
-        assert!(dao_pool::organizer_address(&pool) == ORGANIZER, 2);
+        assert!(dao_pool::fighter_address<USDC>(&pool) == FIGHTER, 0);
+        assert!(dao_pool::gym_address<USDC>(&pool) == GYM, 1);
+        assert!(dao_pool::organizer_address<USDC>(&pool) == ORGANIZER, 2);
         
         // 比率が変更されたことを検証
-        let (f_ratio, g_ratio, o_ratio) = dao_pool::distribution_ratios(&pool);
+        let (f_ratio, g_ratio, o_ratio) = dao_pool::distribution_ratios<USDC>(&pool);
         assert!(f_ratio == 70, 3);
         assert!(g_ratio == 20, 4);
         assert!(o_ratio == 10, 5);
