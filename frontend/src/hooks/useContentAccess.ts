@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useWalletConnection } from "./useWalletConnection";
 import { useUserNftData } from "./useUserNftData";
 import {
   initializeLitClient,
   decryptContent as litDecryptContent,
-  createNftAccessConditions,
 } from "../lib/litProtocol";
-import { CONTRACT_ADDRESSES } from "../lib/contractAddresses";
+import type * as LitJsSdk from '@lit-protocol/lit-node-client';
+import type { UnifiedAccessControlConditions } from '@lit-protocol/types';
 
 /**
  * Hook to manage Lit Protocol content access control
@@ -17,6 +17,32 @@ export function useContentAccess() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const litClientRef = useRef<LitJsSdk.LitNodeClient | null>(null);
+
+  // Initialize Lit Protocol client on mount
+  useEffect(() => {
+    const initClient = async () => {
+      try {
+        if (!litClientRef.current) {
+          const client = await initializeLitClient();
+          litClientRef.current = client;
+        }
+      } catch (err) {
+        console.error('Failed to initialize Lit client:', err);
+        setError(err instanceof Error ? err : new Error('Lit Protocol の初期化に失敗しました'));
+      }
+    };
+
+    initClient();
+
+    // Cleanup on unmount
+    return () => {
+      if (litClientRef.current) {
+        litClientRef.current.disconnect();
+        litClientRef.current = null;
+      }
+    };
+  }, []);
 
   /**
    * Authenticate with Lit Protocol
@@ -31,30 +57,20 @@ export function useContentAccess() {
     setError(null);
 
     try {
-      // TODO: Initialize Lit Protocol client
-      // const litClient = await initializeLitClient();
+      // Check if Lit Protocol client is initialized
+      if (!litClientRef.current) {
+        throw new Error("Lit Protocol client not initialized");
+      }
 
-      console.log("TODO: Initialize Lit Protocol client");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Authenticating with Lit Protocol", { walletAddress, nftCount });
 
-      // TODO: Get wallet signature for authentication
-      // const authSig = await getAuthSig(walletAddress);
+      // For now, we authenticate based on NFT ownership
+      // In a production environment, you would:
+      // 1. Get wallet signature for authentication
+      // 2. Verify access conditions with Lit Protocol
+      // 3. Store authentication state
 
-      console.log("TODO: Get wallet signature for Lit authentication", { walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // TODO: Verify NFT ownership with Lit Protocol
-      // const accessConditions = createNftAccessConditions(
-      //   CONTRACT_ADDRESSES.MEMBERS_NFT_CONTRACT,
-      //   1, // Minimum 1 NFT to authenticate
-      //   walletAddress
-      // );
-      // const verified = await litClient.verifyConditions(accessConditions, authSig);
-
-      console.log("TODO: Verify NFT ownership with Lit Protocol", { nftCount, walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock: Set authenticated if user has at least 1 NFT
+      // Set authenticated if user has at least 1 NFT
       const verified = nftCount >= 1;
       setIsAuthenticated(verified);
 
@@ -78,7 +94,12 @@ export function useContentAccess() {
   /**
    * Decrypt content with Lit Protocol
    */
-  const decryptContent = async (encryptedContent: string, requiredNftCount: number): Promise<string> => {
+  const decryptContent = async (
+    ciphertext: string,
+    dataToEncryptHash: string,
+    unifiedAccessControlConditions: UnifiedAccessControlConditions,
+    requiredNftCount: number
+  ): Promise<string> => {
     if (!walletAddress) {
       throw new Error("Wallet not connected");
     }
@@ -87,29 +108,26 @@ export function useContentAccess() {
       throw new Error("Insufficient NFT count for access");
     }
 
+    if (!litClientRef.current) {
+      throw new Error("Lit Protocol client not initialized");
+    }
+
     try {
-      // TODO: Decrypt content with Lit Protocol
-      // const authSig = await getAuthSig(walletAddress);
-      // const accessConditions = createNftAccessConditions(
-      //   CONTRACT_ADDRESSES.MEMBERS_NFT_CONTRACT,
-      //   requiredNftCount,
-      //   walletAddress
-      // );
-      // const decrypted = await litDecryptContent(
-      //   encryptedContent,
-      //   accessConditions,
-      //   authSig
-      // );
-
-      console.log("TODO: Decrypt content with Lit Protocol", {
-        encryptedContent,
+      console.log("Decrypting content with Lit Protocol", {
         requiredNftCount,
-        walletAddress
+        walletAddress,
+        nftCount
       });
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Mock: return the content as-is
-      return encryptedContent;
+      // Decrypt content using Lit Protocol
+      const decrypted = await litDecryptContent(
+        litClientRef.current,
+        ciphertext,
+        dataToEncryptHash,
+        unifiedAccessControlConditions
+      );
+
+      return decrypted;
     } catch (err) {
       console.error("Error decrypting content:", err);
       throw err;

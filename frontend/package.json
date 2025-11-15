@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lit-protocol/constants": "^6.11.5",
+    "@lit-protocol/lit-node-client": "^6.11.5",
+    "@lit-protocol/types": "^6.11.5",
     "@mysten/dapp-kit": "0.17.6",
     "@mysten/sui": "1.37.5",
     "@radix-ui/colors": "^3.0.0",
@@ -33,6 +36,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "prettier": "^3.6.2",
     "typescript": "^5.8.3",
-    "vite": "^7.0.5"
+    "vite": "^7.0.5",
+    "vite-plugin-node-polyfills": "^0.24.0"
   }
 }
