@@ -8,7 +8,7 @@ module champion_together::dao_pool {
     use sui::balance::{Self, Balance};
     use sui::event;
     use sui::clock::{Self, Clock};
-    use sui::object::{UID, ID};
+    use sui::object::UID;
     use sui::tx_context::TxContext;
     use sui::transfer;
     use std::option::Option;
@@ -50,8 +50,6 @@ module champion_together::dao_pool {
         organizer_ratio: u64,
         /// USDCを保持するトレジャリー残高
         treasury: Balance<USDC>,
-        /// NFTミント用のMembersNFTコントラクトオブジェクトID
-        nft_contract_id: ID,
     }
 
     /// プレースホルダーUSDC型 - 実際のUSDCトークン型に置き換えられる
@@ -92,15 +90,12 @@ module champion_together::dao_pool {
         fighter_ratio: u64,
         gym_ratio: u64,
         organizer_ratio: u64,
-        nft_contract_id: ID,
         clock: &Clock,
         ctx: &mut TxContext
     ): DaoPoolState {
-        use sui::object;
-        
         // 比率の合計が100であることを検証
         assert!(fighter_ratio + gym_ratio + organizer_ratio == 100, E_INVALID_RATIO);
-        
+
         DaoPoolState {
             id: object::new(ctx),
             total_raised: 0,
@@ -114,8 +109,29 @@ module champion_together::dao_pool {
             gym_ratio,
             organizer_ratio,
             treasury: balance::zero<USDC>(),
-            nft_contract_id,
         }
+    }
+
+    /// モジュール初期化関数 - パッケージ公開時に自動実行
+    /// DaoPoolStateを共有オブジェクトとして作成
+    /// 注: 初期値は後でupdate_config関数で変更可能
+    fun init(ctx: &mut TxContext) {
+        // デフォルト値で初期化（後で変更可能）
+        let state = DaoPoolState {
+            id: object::new(ctx),
+            total_raised: 0,
+            support_cap: constants::default_support_cap(),
+            last_distribution: 0, // 初回は0
+            distribution_interval: constants::default_distribution_interval() * 1000,
+            fighter_address: @0x0, // ダミーアドレス
+            gym_address: @0x0,
+            organizer_address: @0x0,
+            fighter_ratio: 60,
+            gym_ratio: 30,
+            organizer_ratio: 10,
+            treasury: balance::zero<USDC>(),
+        };
+        transfer::share_object(state);
     }
 
     /// 支援関数 - 支援者からのUSDC貢献を受け付ける
@@ -123,39 +139,38 @@ module champion_together::dao_pool {
     /// 要件: 1.1, 1.2, 1.3, 1.4, 1.5, 9.1, 9.2
     public entry fun support(
         state: &mut DaoPoolState,
+        nft_state: &mut champion_together::member_nft::MembersNFTState,
         payment: Coin<USDC>,
         clock: &Clock,
         ctx: &mut TxContext
     ) {
-        use sui::tx_context;
-        
+        use champion_together::member_nft;
+
         let amount = coin::value(&payment);
         let supporter = tx_context::sender(ctx);
-        
+
         // 要件 9.2: 金額がゼロより大きいことを検証
         assert!(amount > 0, E_INSUFFICIENT_AMOUNT);
-        
+
         // 要件 1.2, 1.3: 支援上限を超えていないことを検証
         assert!(state.total_raised + amount <= state.support_cap, E_SUPPORT_CAP_REACHED);
-        
+
         // 要件 1.1: USDCをトレジャリーに追加
         let payment_balance = coin::into_balance(payment);
         balance::join(&mut state.treasury, payment_balance);
-        
+
         // 総額を更新
         state.total_raised = state.total_raised + amount;
-        
+
         // 要件 1.5: 支援イベントを発行
         event::emit(SupportEvent {
             supporter,
             amount,
             timestamp: clock::timestamp_ms(clock),
         });
-        
-        // 要件 1.4: MembersNFTコントラクトのmint関数を呼び出す
-        // 注: これは統合時に動的呼び出しとして実装される
-        // 現時点ではイベントを発行し、フロントエンド/統合レイヤーが
-        // NFTミントを個別に処理する
+
+        // 要件 1.4: MembersNFTをミント
+        member_nft::mint(nft_state, amount, supporter, clock, ctx);
     }
 
     /// 分配関数 - トレジャリー資金を受取人に分配

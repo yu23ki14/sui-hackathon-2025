@@ -8,7 +8,7 @@ module champion_together::utils_constants {
     
     /// Sui上のUSDC Testnetトークンアドレス
     /// 参照: https://testnet.suivision.xyz/coin/0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC
-    const USDC_TESTNET_ADDRESS: address = @0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29;
+    const USDC_TESTNET_ADDRESS: address = @0xa09fd1f4c7cfafcafdec341cd971c28621b451c8a60b950a92685d64cf1f1e0a;
     
     /// USDC小数点精度（6桁）
     const USDC_DECIMALS: u8 = 6;
