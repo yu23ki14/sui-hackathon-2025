@@ -10,7 +10,7 @@ import { exclusiveContentConfig } from "../config";
 
 export default function ExclusiveContent() {
   const { walletAddress } = useWalletConnection();
-  const { nftCount } = useUserNftData();
+  const { nftCount, totalSupportAmount } = useUserNftData();
   const { authenticate, isAuthenticated } = useContentAccess();
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -57,6 +57,7 @@ export default function ExclusiveContent() {
         <AuthStatusBar
           walletAddress={walletAddress}
           nftCount={nftCount}
+          totalSupportAmount={totalSupportAmount}
           isAuthenticated={isAuthenticated}
           onAuthenticate={handleAuthenticate}
         />

@@ -1,8 +1,8 @@
 # Champion Together - Deployment Information
 
-## Testnet Deployment
+## Testnet Deployment (v3 - Latest)
 
-**Deployment Date**: 2025-11-15
+**Deployment Date**: 2025-11-15 (Updated)
 **Network**: Sui Testnet
 **Deployer Address**: `0xd6c57debc815d5bc99d33359c5f6f57a677db93965350ea57ca9dfa1dee61353`
 
@@ -12,27 +12,27 @@
 
 ### Package ID
 ```
-0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c
+0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed
 ```
 
 ### Transaction Digest
 ```
-ExTpZmhiLgBBZPsYH1yPeSdgebU1DkKsUydHNeWqd5L1
+DBsxRRiaDzNommRApr9t5xiYg4wTnXjdJpPQ88TZARWd
 ```
 
 ### UpgradeCap Object ID
 ```
-0x0752146df8b8a3a05f020b7cbac44c7f9cdab2971902a551e2cfcd1df04ea11a
+0xdc313452b04e01898cfaabf11641b9a920856d1c1d9688c9caecd25f229ae06c
 ```
 
 ### DaoPoolState (Shared Object)
 ```
-0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e
+0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f
 ```
 
 ### MembersNFTState (Shared Object)
 ```
-0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d
+0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51
 ```
 
 ---
@@ -49,16 +49,16 @@ ExTpZmhiLgBBZPsYH1yPeSdgebU1DkKsUydHNeWqd5L1
 ## Sui Explorer Links
 
 ### Package
-https://testnet.suivision.xyz/package/0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c
+https://testnet.suivision.xyz/package/0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed
 
 ### Transaction
-https://testnet.suivision.xyz/txblock/ExTpZmhiLgBBZPsYH1yPeSdgebU1DkKsUydHNeWqd5L1
+https://testnet.suivision.xyz/txblock/DBsxRRiaDzNommRApr9t5xiYg4wTnXjdJpPQ88TZARWd
 
 ### DaoPoolState Object
-https://testnet.suivision.xyz/object/0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e
+https://testnet.suivision.xyz/object/0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f
 
 ### MembersNFTState Object
-https://testnet.suivision.xyz/object/0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d
+https://testnet.suivision.xyz/object/0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51
 
 ---
 
@@ -69,18 +69,24 @@ https://testnet.suivision.xyz/object/0xbd3f635d36a608e0ea9d63f10cf582ca9c579745e
 ```bash
 # Sui Network
 VITE_SUI_NETWORK=testnet
-VITE_SUI_RPC_URL=https://fullnode.testnet.sui.io:443
 
-# Contract Addresses
-VITE_PACKAGE_ID=0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c
+# Contract Package ID
+VITE_PACKAGE_ID=0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed
 
 # Shared State Objects
-VITE_DAO_POOL_STATE=0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e
-VITE_MEMBERS_NFT_STATE=0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d
+VITE_DAO_CONTRACT_ADDRESS=0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f
+VITE_MEMBERS_NFT_CONTRACT_ADDRESS=0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51
 
-# Module Names
-VITE_DAO_POOL_MODULE=dao_pool
-VITE_MEMBER_NFT_MODULE=member_nft
+# USDC Token Contract (update with actual testnet USDC address)
+VITE_USDC_TOKEN_CONTRACT_ADDRESS=0x0000000000000000000000000000000000000000000000000000000000000000
+
+# Distribution Addresses (update with actual addresses)
+VITE_FIGHTER_ADDRESS=0x0000000000000000000000000000000000000000000000000000000000000000
+VITE_GYM_ADDRESS=0x0000000000000000000000000000000000000000000000000000000000000000
+VITE_ORGANIZER_ADDRESS=0xd6c57debc815d5bc99d33359c5f6f57a677db93965350ea57ca9dfa1dee61353
+
+# Lit Protocol
+VITE_LIT_NETWORK=cayenne
 ```
 
 ---
@@ -91,9 +97,9 @@ VITE_MEMBER_NFT_MODULE=member_nft
 
 ```typescript
 // Package and State Objects
-const PACKAGE_ID = "0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c";
-const DAO_POOL_STATE = "0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e";
-const NFT_STATE = "0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d";
+const PACKAGE_ID = "0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed";
+const DAO_POOL_STATE = "0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f";
+const NFT_STATE = "0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51";
 
 // Module paths
 const DAO_POOL_MODULE = `${PACKAGE_ID}::dao_pool`;
@@ -110,24 +116,46 @@ tx.moveCall({
     tx.object('0x6'),              // Clock object
   ],
 });
+
+// Example: Distribute bonus (organizer only)
+const bonusTx = new Transaction();
+bonusTx.moveCall({
+  target: `${PACKAGE_ID}::dao_pool::distribute_bonus`,
+  arguments: [
+    bonusTx.object(DAO_POOL_STATE),
+    bonusTx.pure.u64(100_000_000),  // 100 USDC in micro-USDC
+    bonusTx.object('0x6'),
+  ],
+});
 ```
 
 ### Move CLI
 
 ```bash
 # View shared objects
-sui client object 0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e
-sui client object 0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d
+sui client object 0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f
+sui client object 0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51
 
 # Call support function (example - requires USDC coin)
 sui client call \
-  --package 0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c \
+  --package 0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed \
   --module dao_pool \
   --function support \
   --args \
-    0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e \
-    0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d \
+    0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f \
+    0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51 \
     <USDC_COIN_ID> \
+    0x6 \
+  --gas-budget 10000000
+
+# Distribute bonus (organizer only)
+sui client call \
+  --package 0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed \
+  --module dao_pool \
+  --function distribute_bonus \
+  --args \
+    0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f \
+    100000000 \
     0x6 \
   --gas-budget 10000000
 ```
@@ -190,9 +218,47 @@ For issues or questions:
 
 ---
 
-## Previous Deployment (v1 - Deprecated)
+## New Features in v3
 
-Package ID (v1): `0x1832d899979ae0a231f867a58501e4a7f7a7b49d02cb6844857628c37c404805`
-- This version required manual initialization
+This deployment includes the following new features:
+
+### 1. Bonus Distribution
+- **Function**: `distribute_bonus()`
+- **Purpose**: Allows the organizer to distribute victory bonuses at any time
+- **Access**: Organizer only
+- **Event**: `BonusDistributionEvent`
+
+### 2. Admin Status Check
+- **Function**: `is_admin()`
+- **Purpose**: Check if an address is the organizer/admin
+- **Returns**: `bool`
+- **Use Case**: Frontend admin UI access control
+
+### 3. Distribution Config Batch Query
+- **Function**: `get_distribution_config()`
+- **Purpose**: Get all distribution settings in a single call
+- **Returns**: `DistributionConfig` struct
+- **Benefits**: Reduced RPC calls, improved frontend performance
+
+### 4. Updated Rank System
+- Rank calculation now based on support amount (not NFT count)
+- **Bronze**: 10+ USDC
+- **Silver**: 50+ USDC
+- **Gold**: 100+ USDC
+- **Platinum**: 200+ USDC (new tier)
+
+---
+
+## Previous Deployments
+
+### v2 (Deprecated)
+Package ID: `0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c`
+- Missing bonus distribution feature
+- No admin check function
+- No batch config query
+
+### v1 (Deprecated)
+Package ID: `0x1832d899979ae0a231f867a58501e4a7f7a7b49d02cb6844857628c37c404805`
+- Required manual initialization
 - Had circular dependency issues
 - Not recommended for use

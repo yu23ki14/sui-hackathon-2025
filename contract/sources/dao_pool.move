@@ -79,6 +79,15 @@ module champion_together::dao_pool {
         timestamp: u64,
     }
 
+    /// 勝利ボーナス分配時に発行されるイベント
+    public struct BonusDistributionEvent has copy, drop {
+        bonus_amount: u64,
+        fighter_amount: u64,
+        gym_amount: u64,
+        organizer_amount: u64,
+        timestamp: u64,
+    }
+
     // ===== パブリック関数 =====
 
     /// 新しいDaoPool状態を初期化
@@ -232,6 +241,55 @@ module champion_together::dao_pool {
         });
     }
 
+    /// 勝利ボーナス分配 - トレジャリーから指定額を分配
+    /// 主催者のみが呼び出し可能
+    /// 通常の分配とは異なり、任意のタイミングで実行可能
+    public entry fun distribute_bonus(
+        state: &mut DaoPoolState,
+        bonus_amount: u64,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        use sui::tx_context;
+
+        let caller = tx_context::sender(ctx);
+
+        // 主催者のみが実行可能
+        assert!(caller == state.organizer_address, E_UNAUTHORIZED);
+
+        let treasury_balance = balance::value(&state.treasury);
+
+        // トレジャリーに十分な残高があることを確認
+        assert!(treasury_balance >= bonus_amount, E_INSUFFICIENT_AMOUNT);
+
+        // 比率に基づいて分配額を計算
+        let fighter_amount = (bonus_amount * state.fighter_ratio) / 100;
+        let gym_amount = (bonus_amount * state.gym_ratio) / 100;
+        let organizer_amount = (bonus_amount * state.organizer_ratio) / 100;
+
+        // 各受取人に転送
+        let fighter_balance = balance::split(&mut state.treasury, fighter_amount);
+        let fighter_coin = coin::from_balance(fighter_balance, ctx);
+        transfer::public_transfer(fighter_coin, state.fighter_address);
+
+        let gym_balance = balance::split(&mut state.treasury, gym_amount);
+        let gym_coin = coin::from_balance(gym_balance, ctx);
+        transfer::public_transfer(gym_coin, state.gym_address);
+
+        let organizer_balance = balance::split(&mut state.treasury, organizer_amount);
+        let organizer_coin = coin::from_balance(organizer_balance, ctx);
+        transfer::public_transfer(organizer_coin, state.organizer_address);
+
+        // ボーナス分配イベントを発行
+        event::emit(BonusDistributionEvent {
+            bonus_amount,
+            fighter_amount,
+            gym_amount,
+            organizer_amount,
+            timestamp: clock::timestamp_ms(clock),
+        });
+    }
+
     /// 分配詳細変更 - 受取人アドレスおよび/または分配比率を更新
     /// 主催者のみが呼び出し可能
     /// 要件: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 9.5
@@ -356,5 +414,38 @@ module champion_together::dao_pool {
     /// 分配比率を取得
     public fun distribution_ratios(state: &DaoPoolState): (u64, u64, u64) {
         (state.fighter_ratio, state.gym_ratio, state.organizer_ratio)
+    }
+
+    /// 指定されたアドレスが管理者（主催者）かどうかを確認
+    public fun is_admin(state: &DaoPoolState, user: address): bool {
+        user == state.organizer_address
+    }
+
+    /// 分配設定をまとめて取得するための構造体
+    public struct DistributionConfig has copy, drop {
+        support_cap: u64,
+        last_distribution: u64,
+        distribution_interval: u64,
+        fighter_address: address,
+        gym_address: address,
+        organizer_address: address,
+        fighter_ratio: u64,
+        gym_ratio: u64,
+        organizer_ratio: u64,
+    }
+
+    /// 分配設定を一括取得
+    public fun get_distribution_config(state: &DaoPoolState): DistributionConfig {
+        DistributionConfig {
+            support_cap: state.support_cap,
+            last_distribution: state.last_distribution,
+            distribution_interval: state.distribution_interval,
+            fighter_address: state.fighter_address,
+            gym_address: state.gym_address,
+            organizer_address: state.organizer_address,
+            fighter_ratio: state.fighter_ratio,
+            gym_ratio: state.gym_ratio,
+            organizer_ratio: state.organizer_ratio,
+        }
     }
 }

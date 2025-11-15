@@ -3,6 +3,7 @@ import { useWalletConnection } from "./useWalletConnection";
 import suiClient from "../lib/suiClient";
 import { CONTRACT_ADDRESSES } from "../lib/contractAddresses";
 import { getRank, Rank } from "../components/RankBadge";
+import { getUserNftCount, getUserTotalSupport } from "../lib/nftUtils";
 
 export interface UserNftData {
   nftCount: number;
@@ -37,22 +38,20 @@ export function useUserNftData() {
     setError(null);
 
     try {
-      // TODO: Fetch NFT count from blockchain
-      // const nftCount = await membersNftContract.balanceOf(walletAddress);
+      // Get package ID from environment variable
+      const packageId = import.meta.env.VITE_PACKAGE_ID;
+      if (!packageId) {
+        throw new Error("VITE_PACKAGE_ID is not set in environment variables");
+      }
 
-      console.log("TODO: Fetch NFT count from blockchain", { walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Fetch NFT count and total support amount from blockchain
+      const [nftCount, totalSupportAmount] = await Promise.all([
+        getUserNftCount(walletAddress, packageId),
+        getUserTotalSupport(walletAddress, packageId),
+      ]);
 
-      // TODO: Fetch total support amount from blockchain
-      // const totalSupport = await daoContract.getUserTotalSupport(walletAddress);
-
-      console.log("TODO: Fetch total support amount from blockchain", { walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Mock data - remove after implementing blockchain integration
-      const nftCount = 8;
-      const totalSupportAmount = 123.0;
-      const rank = getRank(nftCount);
+      // Calculate rank based on total support amount
+      const rank = getRank(totalSupportAmount);
 
       setData({
         nftCount,

@@ -73,7 +73,11 @@ export default function MyPage() {
 
       {/* プロフィールエリア */}
       <Box mb="4">
-        <ProfileCard walletAddress={walletAddress} nftCount={nftCount} />
+        <ProfileCard
+          walletAddress={walletAddress}
+          nftCount={nftCount}
+          totalSupportAmount={totalSupportAmount}
+        />
       </Box>
 
       {/* サマリカード */}

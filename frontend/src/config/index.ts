@@ -153,21 +153,27 @@ export const config: AppConfig = {
   },
 
   // ==================== Rank Configuration ====================
+  // Ranks are based on total support amount (matches smart contract logic)
   ranks: {
     bronze: {
       label: "Bronze Member",
       icon: "🥉",
-      minNfts: 1,
+      minAmount: 10, // 10 USDC
     },
     silver: {
       label: "Silver Member",
       icon: "⭐",
-      minNfts: 5,
+      minAmount: 50, // 50 USDC
     },
     gold: {
       label: "Gold Member",
       icon: "👑",
-      minNfts: 10,
+      minAmount: 100, // 100 USDC
+    },
+    platinum: {
+      label: "Platinum Member",
+      icon: "💎",
+      minAmount: 200, // 200 USDC
     },
   },
 };

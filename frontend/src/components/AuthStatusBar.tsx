@@ -5,6 +5,7 @@ import { getRank, Rank } from "./RankBadge";
 interface AuthStatusBarProps {
   walletAddress: string | null;
   nftCount: number;
+  totalSupportAmount: number; // Total support amount in USDC
   isAuthenticated: boolean;
   onAuthenticate?: () => void;
 }
@@ -12,6 +13,7 @@ interface AuthStatusBarProps {
 export function AuthStatusBar({
   walletAddress,
   nftCount,
+  totalSupportAmount,
   isAuthenticated,
   onAuthenticate,
 }: AuthStatusBarProps) {
@@ -19,9 +21,10 @@ export function AuthStatusBar({
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const rank = getRank(nftCount);
+  const rank = getRank(totalSupportAmount);
 
   const rankColors: Record<Rank, string> = {
+    Platinum: "#80DEEA",
     Gold: "#FFD700",
     Silver: "#B0BEC5",
     Bronze: "#CD7F32",

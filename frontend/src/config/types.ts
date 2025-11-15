@@ -153,22 +153,28 @@ export interface AdminPageConfig {
 }
 
 // ==================== Rank Configuration ====================
+// Ranks are based on total support amount (not NFT count)
 
 export interface RankConfig {
   bronze: {
     label: string;
     icon: string;
-    minNfts: number;
+    minAmount: number; // Minimum support amount in USDC
   };
   silver: {
     label: string;
     icon: string;
-    minNfts: number;
+    minAmount: number;
   };
   gold: {
     label: string;
     icon: string;
-    minNfts: number;
+    minAmount: number;
+  };
+  platinum: {
+    label: string;
+    icon: string;
+    minAmount: number;
   };
 }
 

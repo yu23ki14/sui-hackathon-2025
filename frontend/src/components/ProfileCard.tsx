@@ -4,12 +4,14 @@ import { RankBadge } from "./RankBadge";
 interface ProfileCardProps {
   walletAddress: string;
   nftCount: number;
+  totalSupportAmount: number; // Total support amount in USDC
   onChangeWallet?: () => void;
 }
 
 export function ProfileCard({
   walletAddress,
   nftCount,
+  totalSupportAmount,
   onChangeWallet,
 }: ProfileCardProps) {
   const formatAddress = (address: string) => {
@@ -65,7 +67,7 @@ export function ProfileCard({
 
         {/* 右側：ランク */}
         <Box>
-          <RankBadge nftCount={nftCount} />
+          <RankBadge totalSupportAmount={totalSupportAmount} />
         </Box>
       </Flex>
     </Card>

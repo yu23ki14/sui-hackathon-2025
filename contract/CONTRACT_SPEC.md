@@ -154,6 +154,51 @@ tx.moveCall({
 
 ---
 
+#### `distribute_bonus`
+
+Distributes a victory bonus from the treasury to recipients. Only callable by the organizer.
+
+```move
+public entry fun distribute_bonus(
+    state: &mut DaoPoolState,
+    bonus_amount: u64,
+    clock: &Clock,
+    ctx: &mut TxContext
+)
+```
+
+**Parameters**:
+- `state`: Mutable reference to the shared DaoPoolState object
+- `bonus_amount`: Amount to distribute in micro-USDC
+- `clock`: Reference to the Sui Clock object (0x6)
+- `ctx`: Transaction context
+
+**Effects**:
+- Splits bonus amount according to ratios
+- Transfers USDC to fighter, gym, and organizer addresses
+- Emits `BonusDistributionEvent`
+
+**Requirements**:
+- Caller must be the current organizer
+- Treasury balance must be >= bonus_amount
+- Can be called at any time (no interval restriction)
+
+**Example Usage**:
+```typescript
+// Distribute 100 USDC victory bonus
+const tx = new Transaction();
+tx.moveCall({
+  target: `${PACKAGE_ID}::dao_pool::distribute_bonus`,
+  arguments: [
+    tx.object(DAO_POOL_STATE),
+    tx.pure.u64(100_000_000), // 100 USDC
+    tx.object('0x6'),
+  ],
+});
+```
+
+---
+
 #### `change_distribution_detail`
 
 Updates recipient addresses and/or distribution ratios. Only callable by the organizer.
@@ -321,6 +366,64 @@ public fun distribution_ratios(state: &DaoPoolState): (u64, u64, u64)
 ```
 
 **Returns**: `(fighter_ratio, gym_ratio, organizer_ratio)`
+
+---
+
+#### `is_admin`
+
+Checks if the specified address is the organizer (admin).
+
+```move
+public fun is_admin(state: &DaoPoolState, user: address): bool
+```
+
+**Parameters**:
+- `state`: Reference to the DaoPoolState
+- `user`: Address to check
+
+**Returns**: `true` if user is the organizer, `false` otherwise
+
+**Example Usage**:
+```typescript
+const isAdmin = await client.devInspectTransactionBlock({
+  transactionBlock: tx,
+  sender: userAddress,
+});
+// Use result to show/hide admin UI
+```
+
+---
+
+#### `get_distribution_config`
+
+Returns all distribution settings in a single call for improved efficiency.
+
+```move
+public fun get_distribution_config(state: &DaoPoolState): DistributionConfig
+```
+
+**Returns**: `DistributionConfig` struct containing:
+- `support_cap`: Support cap in micro-USDC
+- `last_distribution`: Last distribution timestamp
+- `distribution_interval`: Distribution interval in milliseconds
+- `fighter_address`: Fighter's wallet address
+- `gym_address`: Gym's wallet address
+- `organizer_address`: Organizer's wallet address
+- `fighter_ratio`: Fighter's percentage
+- `gym_ratio`: Gym's percentage
+- `organizer_ratio`: Organizer's percentage
+
+**Benefits**: Reduces frontend RPC calls from 9 to 1
+
+**Example Usage**:
+```typescript
+const config = await client.devInspectTransactionBlock({
+  transactionBlock: tx,
+  sender: address,
+});
+// Access all settings at once
+console.log(config.support_cap, config.fighter_ratio, etc.);
+```
 
 ---
 
@@ -642,6 +745,19 @@ public struct ConfigChangeEvent has copy, drop {
 }
 ```
 
+#### `BonusDistributionEvent`
+Emitted when a victory bonus is distributed.
+
+```move
+public struct BonusDistributionEvent has copy, drop {
+    bonus_amount: u64,
+    fighter_amount: u64,
+    gym_amount: u64,
+    organizer_amount: u64,
+    timestamp: u64,
+}
+```
+
 ### MemberNFT Events
 
 #### `MintEvent`
@@ -696,9 +812,9 @@ DaoPool module error codes:
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiClient } from '@mysten/sui/client';
 
-const PACKAGE_ID = '0x801ba2d753c5742152298181017e6fa010109c214a75ae1c17ecfef1702fd16c';
-const DAO_POOL_STATE = '0xb28eb1a9c140123ef8be4d52c7933926308482fbced3a0a21edc9cdcf47ece7e';
-const NFT_STATE = '0xbd3f635d36a608e0ea9d63f10cf582ca9c579745ebb0eaf9b6474230eaca195d';
+const PACKAGE_ID = '0xa7791e0b6d7c9ff2c00e4aff7e0a07c0578928d27d19a8f4f1d4637051a760ed';
+const DAO_POOL_STATE = '0x3dd5b828c9211d79fb7da71f63f3d69ce2e640adb8d8e87a8ec163af05cbd14f';
+const NFT_STATE = '0x76127268517ded02125f1c3a83de809848656ee5e5b29d238a5c4ac086d6fd51';
 
 async function supportFighter(usdcCoinId: string) {
   const tx = new Transaction();
@@ -714,6 +830,42 @@ async function supportFighter(usdcCoinId: string) {
   });
 
   return tx;
+}
+
+// Bonus distribution example
+async function distributeBonusExample() {
+  const tx = new Transaction();
+
+  tx.moveCall({
+    target: `${PACKAGE_ID}::dao_pool::distribute_bonus`,
+    arguments: [
+      tx.object(DAO_POOL_STATE),
+      tx.pure.u64(100_000_000), // 100 USDC
+      tx.object('0x6'),
+    ],
+  });
+
+  return tx;
+}
+
+// Check admin status
+async function checkAdminStatus(client: SuiClient, userAddress: string) {
+  const tx = new Transaction();
+
+  tx.moveCall({
+    target: `${PACKAGE_ID}::dao_pool::is_admin`,
+    arguments: [
+      tx.object(DAO_POOL_STATE),
+      tx.pure.address(userAddress),
+    ],
+  });
+
+  const result = await client.devInspectTransactionBlock({
+    transactionBlock: tx,
+    sender: userAddress,
+  });
+
+  return result;
 }
 ```
 

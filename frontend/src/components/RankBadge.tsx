@@ -1,20 +1,33 @@
 import { Box, Text } from "@radix-ui/themes";
 import { rankConfig } from "../config";
 
-export type Rank = "None" | "Bronze" | "Silver" | "Gold";
+export type Rank = "None" | "Bronze" | "Silver" | "Gold" | "Platinum";
 
 interface RankBadgeProps {
-  nftCount: number;
+  totalSupportAmount: number; // Total support amount in USDC
 }
 
-export function getRank(nftCount: number): Rank {
-  if (nftCount >= rankConfig.gold.minNfts) return "Gold";
-  if (nftCount >= rankConfig.silver.minNfts) return "Silver";
-  if (nftCount >= rankConfig.bronze.minNfts) return "Bronze";
+/**
+ * Determine rank based on total support amount (matches contract logic)
+ * @param totalSupportAmount - Total support amount in USDC
+ * @returns Rank
+ */
+export function getRank(totalSupportAmount: number): Rank {
+  if (totalSupportAmount >= rankConfig.platinum.minAmount) return "Platinum";
+  if (totalSupportAmount >= rankConfig.gold.minAmount) return "Gold";
+  if (totalSupportAmount >= rankConfig.silver.minAmount) return "Silver";
+  if (totalSupportAmount >= rankConfig.bronze.minAmount) return "Bronze";
   return "None";
 }
 
 const rankStyles = {
+  Platinum: {
+    gradient: "linear-gradient(135deg, #E0F2F7 0%, #B2EBF2 50%, #80DEEA 100%)",
+    shadow: "0 8px 24px rgba(128, 222, 234, 0.5)",
+    border: "2px solid #4DD0E1",
+    textColor: "#1A1A1A",
+    glow: "0 0 20px rgba(128, 222, 234, 0.7)",
+  },
   Gold: {
     gradient: "linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)",
     shadow: "0 8px 24px rgba(255, 215, 0, 0.4)",
@@ -46,15 +59,18 @@ const rankStyles = {
 };
 
 function getRankConditionText(rank: Rank): string {
-  if (rank === "Gold") return `${rankConfig.gold.minNfts}枚以上`;
+  if (rank === "Platinum") return `${rankConfig.platinum.minAmount} USDC以上`;
+  if (rank === "Gold")
+    return `${rankConfig.gold.minAmount}〜${rankConfig.platinum.minAmount - 1} USDC`;
   if (rank === "Silver")
-    return `${rankConfig.silver.minNfts}〜${rankConfig.gold.minNfts - 1}枚`;
+    return `${rankConfig.silver.minAmount}〜${rankConfig.gold.minAmount - 1} USDC`;
   if (rank === "Bronze")
-    return `${rankConfig.bronze.minNfts}〜${rankConfig.silver.minNfts - 1}枚`;
-  return "0枚";
+    return `${rankConfig.bronze.minAmount}〜${rankConfig.silver.minAmount - 1} USDC`;
+  return "0 USDC";
 }
 
 function getRankIcon(rank: Rank): string {
+  if (rank === "Platinum") return rankConfig.platinum.icon;
   if (rank === "Gold") return rankConfig.gold.icon;
   if (rank === "Silver") return rankConfig.silver.icon;
   if (rank === "Bronze") return rankConfig.bronze.icon;
@@ -62,14 +78,15 @@ function getRankIcon(rank: Rank): string {
 }
 
 function getRankLabel(rank: Rank): string {
+  if (rank === "Platinum") return rankConfig.platinum.label;
   if (rank === "Gold") return rankConfig.gold.label;
   if (rank === "Silver") return rankConfig.silver.label;
   if (rank === "Bronze") return rankConfig.bronze.label;
   return "No Member";
 }
 
-export function RankBadge({ nftCount }: RankBadgeProps) {
-  const rank = getRank(nftCount);
+export function RankBadge({ totalSupportAmount }: RankBadgeProps) {
+  const rank = getRank(totalSupportAmount);
   const style = rankStyles[rank];
 
   return (
@@ -142,7 +159,7 @@ export function RankBadge({ nftCount }: RankBadgeProps) {
           {getRankLabel(rank).toUpperCase()}
         </Text>
 
-        {/* NFT枚数 */}
+        {/* 総支援額 */}
         <Text
           style={{
             color: style.textColor,
@@ -152,7 +169,7 @@ export function RankBadge({ nftCount }: RankBadgeProps) {
             opacity: 0.8,
           }}
         >
-          {nftCount} NFTs
+          {totalSupportAmount.toFixed(2)} USDC
         </Text>
 
         {/* 装飾的な下線 */}
