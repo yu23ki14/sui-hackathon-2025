@@ -1,129 +1,144 @@
-/**
- * Lit Protocol Encryption Script
- *
- * This script encrypts content that can only be decrypted by users who hold at least 0.1 SUI on Sui Testnet.
- * The encrypted data and necessary keys are output to be added to the frontend config.
- */
+import { LitNodeClient } from "@lit-protocol/lit-node-client";
+import { LitNetwork } from "@lit-protocol/constants";
+import { encryptString } from "@lit-protocol/encryption";
+import { config } from "dotenv";
+import * as fs from "fs";
+import * as path from "path";
 
-import * as LitJsSdk from '@lit-protocol/lit-node-client';
-import { LitNetwork } from '@lit-protocol/constants';
-import type { UnifiedAccessControlConditions } from '@lit-protocol/types';
-
-interface EncryptionResult {
-  ciphertext: string;
-  dataToEncryptHash: string;
-  unifiedAccessControlConditions: UnifiedAccessControlConditions;
-}
+// 環境変数を読み込み
+config();
 
 /**
- * Unified Access Control Conditions: User must have at least 0.1 SUI on Sui Testnet
- *
- * Note: Since Lit Protocol doesn't natively support Sui yet, we use a custom condition
- * that will be verified on the frontend by checking the user's wallet balance.
- * For now, we use a simple EVM-based condition as a fallback.
+ * コンテンツを暗号化し、Sui残高条件付きアクセスコントロールを設定
  */
-const unifiedAccessControlConditions: UnifiedAccessControlConditions = [
-  {
-    conditionType: 'evmBasic',
-    contractAddress: '',
-    standardContractType: '',
-    chain: 'ethereum',
-    method: '',
-    parameters: [':userAddress'],
-    returnValueTest: {
-      comparator: '>=',
-      value: '0', // Allow all for testing; real verification happens in frontend
-    },
-  },
-];
+async function encryptContent() {
+  let litNodeClient: LitNodeClient | undefined;
 
-/**
- * Encrypt a string using Lit Protocol
- */
-async function encryptString(content: string): Promise<EncryptionResult> {
-  console.log('🔐 Initializing Lit Protocol client...');
-
-  // Initialize Lit client
-  const litNodeClient = new LitJsSdk.LitNodeClient({
-    litNetwork: LitNetwork.DatilDev,
-    debug: false,
-  });
-
-  await litNodeClient.connect();
-  console.log('✅ Connected to Lit Network');
-
-  // Encrypt the content
-  console.log(`\n🔒 Encrypting content: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`);
-
-  const { ciphertext, dataToEncryptHash } = await LitJsSdk.encryptString(
-    {
-      unifiedAccessControlConditions,
-      dataToEncrypt: content,
-    },
-    litNodeClient,
-  );
-
-  console.log('✅ Content encrypted successfully');
-
-  // Disconnect
-  await litNodeClient.disconnect();
-
-  return {
-    ciphertext,
-    dataToEncryptHash,
-    unifiedAccessControlConditions,
-  };
-}
-
-/**
- * Main execution
- */
-async function main() {
   try {
-    // Example content to encrypt
-    const contentToEncrypt = 'This is exclusive content for TEAM KENTA members! 🥊';
+    console.log("🔐 Lit Protocol による暗号化を開始します...\n");
 
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('  LIT PROTOCOL ENCRYPTION TOOL');
-    console.log('═══════════════════════════════════════════════════════\n');
+    // Lit Node Client の初期化
+    console.log("📡 Lit ネットワークに接続中...");
+    litNodeClient = new LitNodeClient({
+      litNetwork: LitNetwork.DatilTest, // テストネットを使用
+      debug: false,
+    });
+    await litNodeClient.connect();
+    console.log("✅ Lit ネットワークに接続しました\n");
 
-    const result = await encryptString(contentToEncrypt);
+    // 暗号化するコンテンツ
+    const content = process.argv[2] || "これは限定コンテンツです。0.1 SUI以上保有しているアドレスのみ閲覧できます。";
 
-    console.log('\n═══════════════════════════════════════════════════════');
-    console.log('  ENCRYPTION RESULT');
-    console.log('═══════════════════════════════════════════════════════\n');
+    console.log("📝 暗号化するコンテンツ:");
+    console.log(`   "${content}"\n`);
 
-    console.log('📦 Ciphertext:', result.ciphertext);
-    console.log('\n🔑 Data Hash:', result.dataToEncryptHash);
-    console.log('\n🔐 Unified Access Control Conditions:');
-    console.log(JSON.stringify(result.unifiedAccessControlConditions, null, 2));
+    // IPFS CID を読み込み（lit-action-ipfs.json から）
+    const ipfsDataPath = path.join(process.cwd(), "lit-action-ipfs.json");
+    let ipfsCid: string | undefined;
 
-    console.log('\n═══════════════════════════════════════════════════════');
-    console.log('  NEXT STEPS');
-    console.log('═══════════════════════════════════════════════════════\n');
-    console.log('1. Add the encrypted data to frontend/src/config/index.ts');
-    console.log('2. Update the access control conditions for Sui Testnet');
-    console.log('3. Test decryption in the frontend\n');
+    if (fs.existsSync(ipfsDataPath)) {
+      const ipfsData = JSON.parse(fs.readFileSync(ipfsDataPath, "utf-8"));
+      ipfsCid = ipfsData.ipfsCid;
+      console.log("✅ IPFS CID を読み込みました:");
+      console.log(`   ${ipfsCid}\n`);
+    } else {
+      console.log("⚠️  警告: lit-action-ipfs.json が見つかりません");
+      console.log("   まず 'pnpm upload' を実行して Lit Action を IPFS にアップロードしてください\n");
+      console.log("   一時的にシンプルな条件を使用します（誰でもアクセス可能）\n");
+    }
 
-    // Output for easy copy-paste to config
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('  CONFIG OUTPUT (Copy to config/index.ts)');
-    console.log('═══════════════════════════════════════════════════════\n');
-    console.log(`export const litProtocolConfig = {
-  encryptedContent: "${result.ciphertext}",
-  dataToEncryptHash: "${result.dataToEncryptHash}",
-  unifiedAccessControlConditions: ${JSON.stringify(result.unifiedAccessControlConditions, null, 2).replace(/\n/g, '\n  ')}
-};`);
+    // Unified Access Control Conditions
+    const unifiedAccessControlConditions = ipfsCid
+      ? [
+          // Sui 残高チェック用の Lit Action
+          {
+            conditionType: "evmBasic",
+            contractAddress: ipfsCid,
+            standardContractType: "LitAction",
+            chain: "ethereum",
+            method: "",
+            parameters: [":userAddress"], // ユーザーのアドレスを渡す
+            returnValueTest: {
+              comparator: "=",
+              value: "true",
+            },
+          },
+        ]
+      : [
+          // デフォルト: シンプルな ETH 残高チェック
+          {
+            conditionType: "evmBasic",
+            contractAddress: "",
+            standardContractType: "",
+            chain: "ethereum",
+            method: "eth_getBalance",
+            parameters: [":userAddress", "latest"],
+            returnValueTest: {
+              comparator: ">=",
+              value: "0",
+            },
+          },
+        ];
 
+    // コンテンツを暗号化
+    console.log("🔒 暗号化処理中...");
+    const { ciphertext, dataToEncryptHash } = await encryptString(
+      {
+        dataToEncrypt: content,
+        unifiedAccessControlConditions,
+      },
+      litNodeClient
+    );
+
+    console.log("✅ 暗号化が完了しました\n");
+
+    // 暗号化されたデータを保存
+    const encryptedData = {
+      ciphertext,
+      dataToEncryptHash,
+      unifiedAccessControlConditions,
+      ipfsCid: ipfsCid || null,
+      requiredBalance: ipfsCid ? "0.1 SUI" : "0 ETH (デモ用)",
+      network: ipfsCid ? "sui-testnet" : "ethereum",
+      createdAt: new Date().toISOString(),
+    };
+
+    const outputPath = path.join(process.cwd(), "encrypted-content.json");
+    fs.writeFileSync(outputPath, JSON.stringify(encryptedData, null, 2));
+
+    console.log("💾 暗号化されたデータを保存しました:");
+    console.log(`   ${outputPath}\n`);
+
+    console.log("📊 暗号化情報:");
+    console.log(`   データハッシュ: ${dataToEncryptHash}`);
+    console.log(`   必要残高: ${encryptedData.requiredBalance}`);
+    console.log(`   ネットワーク: ${encryptedData.network}`);
+    if (ipfsCid) {
+      console.log(`   Lit Action CID: ${ipfsCid}`);
+    }
+    console.log();
+
+    console.log("🎉 暗号化処理が完了しました！");
+    if (ipfsCid) {
+      console.log("\n📝 次のステップ:");
+      console.log("   pnpm decrypt <sui-address>");
+      console.log("   例: pnpm decrypt 0x1234567890abcdef...\n");
+    }
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error("❌ エラーが発生しました:", error);
     process.exit(1);
+  } finally {
+    // クリーンアップ
+    if (litNodeClient) {
+      await litNodeClient.disconnect();
+      console.log("\n🔌 Lit ネットワークから切断しました");
+    }
   }
 }
 
-// Run if executed directly
+// スクリプトとして実行された場合
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  encryptContent();
 }
 
-export { encryptString, unifiedAccessControlConditions };
+export { encryptContent };

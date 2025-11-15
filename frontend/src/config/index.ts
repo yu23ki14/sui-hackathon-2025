@@ -23,7 +23,7 @@ export const config: AppConfig = {
     weightClass: "Bantamweight",
     gym: "STRONG Gym",
     organizer: "後援会 TEAM ARENA",
-    imageUrl: undefined, // Set your fighter's image URL here
+    imageUrl: "/images/pfp.png", // Set your fighter's image URL here
     bio: "ONE を目指すファイターを、コミュニティで継続的に支える後援会DAOです。",
   },
 
