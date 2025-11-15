@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { Transaction } from "@mysten/sui/transactions";
 import { useWalletConnection } from "./useWalletConnection";
 import suiClient from "../lib/suiClient";
 import { CONTRACT_ADDRESSES } from "../lib/contractAddresses";
@@ -10,10 +12,14 @@ export interface SupportResult {
 }
 
 /**
- * Hook to execute support transaction (USDC approve + support)
+ * Hook to execute support transaction with SUI
+ * Note: Changed from USDC to SUI
+ * - USDC: 6 decimals (1 USDC = 1_000_000)
+ * - SUI: 9 decimals (1 SUI = 1_000_000_000)
  */
 export function useSupport() {
   const { walletAddress } = useWalletConnection();
+  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -36,29 +42,72 @@ export function useSupport() {
     setTxHash(null);
 
     try {
-      // TODO: Step 1 - Approve USDC spending
-      // const approveTx = await usdcContract.approve(
-      //   CONTRACT_ADDRESSES.DAO_CONTRACT,
-      //   amount * 1_000_000 // Convert to smallest unit (6 decimals)
-      // );
-      // await approveTx.wait();
+      const packageId = import.meta.env.VITE_PACKAGE_ID;
+      const daoPoolState = CONTRACT_ADDRESSES.DAO_CONTRACT;
+      const nftState = CONTRACT_ADDRESSES.MEMBERS_NFT_CONTRACT;
+      const coinType = CONTRACT_ADDRESSES.COIN_TYPE;
 
-      console.log("TODO: Step 1 - Approve USDC spending", { amount, walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!packageId || !daoPoolState || !nftState) {
+        throw new Error("Contract addresses not configured");
+      }
 
-      // TODO: Step 2 - Call support function on DAO contract
-      // const supportTx = await daoContract.support(amount * 1_000_000);
-      // const receipt = await supportTx.wait();
-      // const hash = receipt.transactionHash;
+      // Convert amount to smallest unit (9 decimals for SUI)
+      const amountInSmallestUnit = Math.floor(amount * 1_000_000_000);
 
-      console.log("TODO: Step 2 - Call support function", { amount, walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Preparing support transaction:", {
+        amount,
+        amountInSmallestUnit,
+        packageId,
+        daoPoolState,
+        nftState,
+        coinType,
+        walletAddress,
+      });
 
-      // Mock transaction hash - remove after implementing blockchain integration
-      const hash = "0x" + Math.random().toString(16).slice(2).padEnd(64, "0");
-      setTxHash(hash);
+      // Build transaction
+      const tx = new Transaction();
 
-      return { success: true, txHash: hash };
+      // Split SUI coin for the support amount
+      const [coin] = tx.splitCoins(tx.gas, [amountInSmallestUnit]);
+
+      // Call support function
+      // Arguments match dao_pool.move support function:
+      // 1. state: &mut DaoPoolState<T>
+      // 2. nft_state: &mut MembersNFTState
+      // 3. payment: Coin<T>
+      // 4. clock: &Clock
+      tx.moveCall({
+        target: `${packageId}::dao_pool::support`,
+        arguments: [
+          tx.object(daoPoolState),
+          tx.object(nftState),
+          coin,
+          tx.object("0x6"), // Sui Clock object
+        ],
+        typeArguments: [coinType],
+      });
+
+      // Execute transaction
+      const result = await signAndExecuteTransaction({
+        transaction: tx,
+      });
+
+      console.log("Transaction executed:", result);
+
+      const digest = result.digest;
+      setTxHash(digest);
+
+      // Wait for transaction confirmation
+      await suiClient.waitForTransaction({
+        digest,
+        options: {
+          showEffects: true,
+        },
+      });
+
+      console.log("Support transaction confirmed:", digest);
+
+      return { success: true, txHash: digest };
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Support transaction failed");
       setError(error);

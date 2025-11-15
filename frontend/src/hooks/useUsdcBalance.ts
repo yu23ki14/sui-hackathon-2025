@@ -4,7 +4,10 @@ import suiClient from "../lib/suiClient";
 import { CONTRACT_ADDRESSES } from "../lib/contractAddresses";
 
 /**
- * Hook to fetch user's USDC token balance
+ * Hook to fetch user's SUI token balance
+ * Note: Changed from USDC to SUI
+ * - USDC: 6 decimals (1 USDC = 1_000_000)
+ * - SUI: 9 decimals (1 SUI = 1_000_000_000)
  */
 export function useUsdcBalance() {
   const { walletAddress } = useWalletConnection();
@@ -22,23 +25,23 @@ export function useUsdcBalance() {
     setError(null);
 
     try {
-      // TODO: Fetch USDC balance from blockchain
-      // const coinType = `${CONTRACT_ADDRESSES.USDC_TOKEN_CONTRACT}::usdc::USDC`;
-      // const result = await suiClient.getBalance({
-      //   owner: walletAddress,
-      //   coinType,
-      // });
-      // const balanceInUsdc = Number(result.totalBalance) / 1_000_000; // Assuming 6 decimals
-      // setBalance(balanceInUsdc);
+      // Fetch SUI balance from blockchain
+      const coinType = CONTRACT_ADDRESSES.COIN_TYPE;
+      const result = await suiClient.getBalance({
+        owner: walletAddress,
+        coinType,
+      });
 
-      console.log("TODO: Fetch USDC balance from blockchain", { walletAddress });
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // SUI has 9 decimals (1 SUI = 1_000_000_000)
+      const balanceInSui = Number(result.totalBalance) / 1_000_000_000;
+      setBalance(balanceInSui);
 
-      // Mock data - remove after implementing blockchain integration
-      setBalance(125.3);
+      console.log("SUI balance fetched:", { walletAddress, balance: balanceInSui, raw: result.totalBalance });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch USDC balance"));
-      console.error("Error fetching USDC balance:", err);
+      setError(err instanceof Error ? err : new Error("Failed to fetch SUI balance"));
+      console.error("Error fetching SUI balance:", err);
+      // Set a small mock balance for testing if fetch fails
+      setBalance(0.1);
     } finally {
       setIsLoading(false);
     }

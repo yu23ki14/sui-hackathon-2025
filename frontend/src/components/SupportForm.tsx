@@ -3,14 +3,14 @@ import { useState } from "react";
 
 interface SupportFormProps {
   walletAddress: string | null;
-  usdcBalance: number;
+  usdcBalance: number; // Note: This is now SUI balance, but kept name for compatibility
   onSubmit: (amount: number) => Promise<void>;
   isSubmitting: boolean;
 }
 
 export function SupportForm({
   walletAddress,
-  usdcBalance,
+  usdcBalance, // Actually SUI balance
   onSubmit,
   isSubmitting,
 }: SupportFormProps) {
@@ -32,8 +32,9 @@ export function SupportForm({
       return false;
     }
 
-    if (numValue < 1) {
-      setError("1 USDC 以上の金額を入力してください。");
+    // Changed minimum from 1 USDC to 0.01 SUI for testing
+    if (numValue < 0.01) {
+      setError("0.01 SUI 以上の金額を入力してください。");
       return false;
     }
 
@@ -95,7 +96,7 @@ export function SupportForm({
           fontWeight: "600",
         }}
       >
-        サポート額（USDC）
+        サポート額（SUI）
       </Text>
 
       {/* 入力フィールド */}
@@ -103,10 +104,12 @@ export function SupportForm({
         <Box style={{ flex: 1 }}>
           <TextField.Root
             type="number"
-            placeholder="例）10"
+            placeholder="例）0.1"
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
             disabled={!walletAddress || isSubmitting}
+            step="0.01"
+            min="0.01"
             style={{
               width: "100%",
             }}

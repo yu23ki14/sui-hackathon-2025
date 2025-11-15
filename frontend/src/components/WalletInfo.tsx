@@ -3,13 +3,13 @@ import { Box, Button, Card, Flex, Text } from "@radix-ui/themes";
 
 interface WalletInfoProps {
   walletAddress: string | null;
-  usdcBalance: number;
+  usdcBalance: number; // Note: This is now SUI balance, but kept name for compatibility
   onChangeWallet?: () => void;
 }
 
 export function WalletInfo({
   walletAddress,
-  usdcBalance,
+  usdcBalance, // Actually SUI balance
   onChangeWallet,
 }: WalletInfoProps) {
   if (!walletAddress) {
@@ -89,7 +89,7 @@ export function WalletInfo({
             marginBottom: "4px",
           }}
         >
-          USDC 残高
+          SUI 残高
         </Text>
         <Text
           size="4"
@@ -98,7 +98,7 @@ export function WalletInfo({
             fontWeight: "600",
           }}
         >
-          {usdcBalance.toLocaleString()} USDC
+          {usdcBalance.toFixed(4)} SUI
         </Text>
       </Box>
 
@@ -111,7 +111,7 @@ export function WalletInfo({
           lineHeight: "1.5",
         }}
       >
-        ※ サポートには USDC を使用します。ガス代用に少量の SUI も必要です。
+        ※ サポートには SUI を使用します。ガス代も SUI から差し引かれます。
       </Text>
     </Card>
   );

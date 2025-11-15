@@ -76,7 +76,7 @@ export async function getUserNftCount(
  * Calculate total support amount from all user's NFTs
  * @param walletAddress - User's wallet address
  * @param packageId - Smart contract package ID
- * @returns Total support amount in USDC (with decimals)
+ * @returns Total support amount in SUI (with decimals)
  */
 export async function getUserTotalSupport(
   walletAddress: string,
@@ -87,20 +87,22 @@ export async function getUserTotalSupport(
   // Sum up all support amounts
   const total = nfts.reduce((sum, nft) => sum + nft.supportAmount, 0);
 
-  // Convert from smallest unit to USDC (assuming 6 decimals)
-  return total / 1_000_000;
+  // Convert from smallest unit to SUI (9 decimals)
+  // Note: Changed from USDC (6 decimals) to SUI (9 decimals)
+  return total / 1_000_000_000;
 }
 
 /**
  * Get rank based on total support amount
  * This follows the contract's rank calculation logic
- * @param totalSupportAmount - Total support amount in USDC
+ * @param totalSupportAmount - Total support amount in SUI
  * @returns Rank string
  */
 export function getRankFromAmount(totalSupportAmount: number): string {
-  if (totalSupportAmount >= 200) return "Platinum";
-  if (totalSupportAmount >= 100) return "Gold";
-  if (totalSupportAmount >= 50) return "Silver";
-  if (totalSupportAmount >= 10) return "Bronze";
+  // Changed from USDC to SUI - thresholds are much smaller
+  if (totalSupportAmount >= 0.2) return "Platinum";
+  if (totalSupportAmount >= 0.1) return "Gold";
+  if (totalSupportAmount >= 0.05) return "Silver";
+  if (totalSupportAmount >= 0.01) return "Bronze";
   return "None";
 }

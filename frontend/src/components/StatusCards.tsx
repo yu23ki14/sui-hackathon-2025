@@ -58,9 +58,10 @@ export function StatusCards({
   nextAvailableTime,
 }: StatusCardsProps) {
   const formatCurrency = (amount: number) => {
+    // Changed from USDC to SUI - show decimal places for SUI
     return amount.toLocaleString("ja-JP", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
     });
   };
 
@@ -82,12 +83,12 @@ export function StatusCards({
       <Grid columns={{ initial: "1", sm: "2", md: "4" }} gap="4">
         <StatusCard
           label="POOL 残高"
-          value={`${formatCurrency(poolBalance)} USDC`}
+          value={`${formatCurrency(poolBalance)} SUI`}
           subtitle="次回分配の対象となる残高"
         />
         <StatusCard
           label="累計サポート額"
-          value={`${formatCurrency(totalSupportAmount)} USDC`}
+          value={`${formatCurrency(totalSupportAmount)} SUI`}
           subtitle="これまでコミュニティから集まった支援"
         />
         <StatusCard

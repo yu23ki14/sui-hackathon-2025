@@ -33,7 +33,7 @@ export const config: AppConfig = {
       catchphrase:
         "ONE を目指すファイターを、コミュニティで継続的に支える後援会DAOです。",
       ctaButtonText: "今すぐ Support する",
-      ctaSubtext: "USDC で支援 / Web3 ウォレット対応",
+      ctaSubtext: "SUI で支援 / Web3 ウォレット対応",
     },
     trust: {
       description:
@@ -46,7 +46,7 @@ export const config: AppConfig = {
   supportPage: {
     title: "サポートして、KENTAの挑戦を支える",
     description:
-      "USDC で支援すると、資金は DAO プールに蓄積され、スマートコントラクトによって選手・ジム・幹事に自動分配されます。",
+      "SUI で支援すると、資金は DAO プールに蓄積され、スマートコントラクトによって選手・ジム・幹事に自動分配されます。",
     successMessage: "Members NFT があなたのウォレットにミントされました。",
     errorMessage:
       "トランザクションに失敗しました。ウォレットの状態を確認して、もう一度お試しください。",
@@ -145,7 +145,7 @@ export const config: AppConfig = {
       title: "分配実行",
       executeSuccessMessage: "分配が完了しました。",
       executeErrorMessage: "分配に失敗しました。条件を確認してください。",
-      bonusSuccessMessage: "勝利ボーナス {amount} USDC を分配しました。",
+      bonusSuccessMessage: "勝利ボーナス {amount} SUI を分配しました。",
       bonusErrorMessage: "勝利ボーナスの分配に失敗しました。",
     },
     eventHistory: {
@@ -155,26 +155,29 @@ export const config: AppConfig = {
 
   // ==================== Rank Configuration ====================
   // Ranks are based on total support amount (matches smart contract logic)
+  // Note: Changed from USDC to SUI
+  // Original USDC values were designed for 6 decimals
+  // SUI has 9 decimals, so threshold values are much smaller
   ranks: {
     bronze: {
       label: "Bronze Member",
       icon: "🥉",
-      minAmount: 10, // 10 USDC
+      minAmount: 0.01, // 0.01 SUI (10,000,000 in smallest unit)
     },
     silver: {
       label: "Silver Member",
       icon: "⭐",
-      minAmount: 50, // 50 USDC
+      minAmount: 0.05, // 0.05 SUI (50,000,000 in smallest unit)
     },
     gold: {
       label: "Gold Member",
       icon: "👑",
-      minAmount: 100, // 100 USDC
+      minAmount: 0.1, // 0.1 SUI (100,000,000 in smallest unit)
     },
     platinum: {
       label: "Platinum Member",
       icon: "💎",
-      minAmount: 200, // 200 USDC
+      minAmount: 0.2, // 0.2 SUI (200,000,000 in smallest unit)
     },
   },
 };

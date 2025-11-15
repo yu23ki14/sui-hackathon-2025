@@ -4,12 +4,12 @@ import { rankConfig } from "../config";
 export type Rank = "None" | "Bronze" | "Silver" | "Gold" | "Platinum";
 
 interface RankBadgeProps {
-  totalSupportAmount: number; // Total support amount in USDC
+  totalSupportAmount: number; // Total support amount in SUI
 }
 
 /**
  * Determine rank based on total support amount (matches contract logic)
- * @param totalSupportAmount - Total support amount in USDC
+ * @param totalSupportAmount - Total support amount in SUI
  * @returns Rank
  */
 export function getRank(totalSupportAmount: number): Rank {
@@ -59,14 +59,15 @@ const rankStyles = {
 };
 
 function getRankConditionText(rank: Rank): string {
-  if (rank === "Platinum") return `${rankConfig.platinum.minAmount} USDC以上`;
+  // Changed from USDC to SUI
+  if (rank === "Platinum") return `${rankConfig.platinum.minAmount} SUI以上`;
   if (rank === "Gold")
-    return `${rankConfig.gold.minAmount}〜${rankConfig.platinum.minAmount - 1} USDC`;
+    return `${rankConfig.gold.minAmount}〜${rankConfig.platinum.minAmount} SUI未満`;
   if (rank === "Silver")
-    return `${rankConfig.silver.minAmount}〜${rankConfig.gold.minAmount - 1} USDC`;
+    return `${rankConfig.silver.minAmount}〜${rankConfig.gold.minAmount} SUI未満`;
   if (rank === "Bronze")
-    return `${rankConfig.bronze.minAmount}〜${rankConfig.silver.minAmount - 1} USDC`;
-  return "0 USDC";
+    return `${rankConfig.bronze.minAmount}〜${rankConfig.silver.minAmount} SUI未満`;
+  return "0 SUI";
 }
 
 function getRankIcon(rank: Rank): string {
@@ -169,7 +170,7 @@ export function RankBadge({ totalSupportAmount }: RankBadgeProps) {
             opacity: 0.8,
           }}
         >
-          {totalSupportAmount.toFixed(2)} USDC
+          {totalSupportAmount.toFixed(4)} SUI
         </Text>
 
         {/* 装飾的な下線 */}

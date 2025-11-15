@@ -79,7 +79,7 @@ export function MySummaryCards({
     <Grid columns={{ initial: "1", md: "3" }} gap="4">
       <SummaryCard
         label="累計サポート額"
-        value={`${totalSupportAmount.toFixed(2)} USDC`}
+        value={`${totalSupportAmount.toFixed(4)} SUI`}
         subtitle="これまでに TEAM KENTA に送った支援の合計です。"
       />
       <SummaryCard

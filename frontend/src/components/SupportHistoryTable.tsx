@@ -124,7 +124,7 @@ export function SupportHistoryTable({
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeaderCell>日時</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>サポート額 (USDC)</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>サポート額 (SUI)</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell>Tx</Table.ColumnHeaderCell>
           </Table.Row>
         </Table.Header>
@@ -132,7 +132,7 @@ export function SupportHistoryTable({
           {history.map((item, index) => (
             <Table.Row key={index}>
               <Table.Cell>{item.date}</Table.Cell>
-              <Table.Cell>{item.amount.toFixed(2)}</Table.Cell>
+              <Table.Cell>{item.amount.toFixed(4)}</Table.Cell>
               <Table.Cell>
                 <a
                   href={`https://suiscan.xyz/testnet/tx/${item.txHash}`}
@@ -191,7 +191,7 @@ export function SupportHistoryTable({
               fontWeight: "600",
             }}
           >
-            {item.amount.toFixed(2)} USDC
+            {item.amount.toFixed(4)} SUI
           </Text>
           <a
             href={`https://suiscan.xyz/testnet/tx/${item.txHash}`}
