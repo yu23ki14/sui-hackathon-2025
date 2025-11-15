@@ -20,8 +20,6 @@ module champion_together::member_nft {
         id: UID,
         /// 発行済みトークン数
         token_counter: u64,
-        /// DaoPoolコントラクトのオブジェクトID（認可用）
-        dao_pool_id: ID,
     }
 
     /// メンバーNFTオブジェクト
@@ -68,13 +66,11 @@ module champion_together::member_nft {
     /// 新しいMembersNFT状態を初期化
     /// コントラクトデプロイ時に一度だけ呼び出される
     public fun init_nft_state(
-        dao_pool_id: ID,
         ctx: &mut TxContext
     ): MembersNFTState {
         MembersNFTState {
             id: object::new(ctx),
             token_counter: 0,
-            dao_pool_id,
         }
     }
 
@@ -134,6 +130,13 @@ module champion_together::member_nft {
         transfer::public_transfer(nft, recipient);
     }
 
+    /// モジュール初期化関数 - パッケージ公開時に自動実行
+    /// MembersNFTStateを共有オブジェクトとして作成
+    fun init(ctx: &mut TxContext) {
+        let state = init_nft_state(ctx);
+        transfer::share_object(state);
+    }
+
     /// エントリー関数版のmint - DaoPoolから呼び出される
     #[allow(lint(public_entry))]
     public entry fun mint_entry(
@@ -185,11 +188,6 @@ module champion_together::member_nft {
     /// 総発行数を返す
     public fun total_supply(state: &MembersNFTState): u64 {
         state.token_counter
-    }
-
-    /// NFT状態のdao_pool_idを返す
-    public fun dao_pool_id(state: &MembersNFTState): ID {
-        state.dao_pool_id
     }
 
     // ===== フロントエンド用ヘルパー関数 =====
@@ -304,11 +302,9 @@ module champion_together::member_nft {
     // ===== テスト専用関数 =====
     #[test_only]
     public fun create_test_state(ctx: &mut TxContext): MembersNFTState {
-        use sui::object;
         MembersNFTState {
             id: object::new(ctx),
             token_counter: 0,
-            dao_pool_id: object::id_from_address(@0x1),
         }
     }
 

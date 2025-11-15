@@ -8,6 +8,7 @@ module champion_together::dao_pool_tests {
     use sui::clock::{Self, Clock};
     use sui::test_utils;
     use champion_together::dao_pool::{Self, DaoPoolState, USDC};
+    use champion_together::member_nft;
 
     // テスト用アドレス
     const FIGHTER: address = @0xF1;
@@ -31,8 +32,6 @@ module champion_together::dao_pool_tests {
 
     // デフォルト設定でDaoPoolを初期化するヘルパー関数
     fun init_dao_pool(scenario: &mut Scenario, clock: &Clock): DaoPoolState {
-        let nft_contract_id = sui::object::id_from_address(@0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef);
-        
         dao_pool::init_pool(
             FIGHTER,
             GYM,
@@ -40,7 +39,6 @@ module champion_together::dao_pool_tests {
             60, // fighter_ratio
             30, // gym_ratio
             10, // organizer_ratio
-            nft_contract_id,
             clock,
             ts::ctx(scenario)
         )
@@ -59,21 +57,25 @@ module champion_together::dao_pool_tests {
     fun test_support_success() {
         let mut scenario = setup_test();
         let clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         // DaoPoolを初期化
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 支援者が貢献
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(HUNDRED_USDC, ts::ctx(&mut scenario));
-        
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
         // 状態の更新を検証
         assert!(dao_pool::total_raised(&pool) == HUNDRED_USDC, 0);
         assert!(dao_pool::treasury_balance(&pool) == HUNDRED_USDC, 1);
-        
+
         // クリーンアップ
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -85,23 +87,27 @@ module champion_together::dao_pool_tests {
     fun test_support_multiple_contributions() {
         let mut scenario = setup_test();
         let clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 最初の支援者
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment1, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+
         // 2番目の支援者
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment2, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+
         // 合計を検証
         assert!(dao_pool::total_raised(&pool) == 2 * THOUSAND_USDC, 0);
         assert!(dao_pool::treasury_balance(&pool) == 2 * THOUSAND_USDC, 1);
-        
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -114,15 +120,19 @@ module champion_together::dao_pool_tests {
     fun test_support_zero_amount() {
         let mut scenario = setup_test();
         let clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(0, ts::ctx(&mut scenario));
-        
+
         // E_INSUFFICIENT_AMOUNTでアボートするはず
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -135,21 +145,25 @@ module champion_together::dao_pool_tests {
     fun test_support_exceeds_cap() {
         let mut scenario = setup_test();
         let clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 上限までの最初の貢献
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment1 = mint_usdc(THREE_THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment1, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment1, &clock, ts::ctx(&mut scenario));
+
         // 2回目の貢献は失敗するはず
         ts::next_tx(&mut scenario, SUPPORTER2);
         let payment2 = mint_usdc(ONE_USDC, ts::ctx(&mut scenario));
-        
+
         // E_SUPPORT_CAP_REACHEDでアボートするはず
-        dao_pool::support(&mut pool, payment2, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment2, &clock, ts::ctx(&mut scenario));
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -162,16 +176,20 @@ module champion_together::dao_pool_tests {
     fun test_support_at_cap_boundary() {
         let mut scenario = setup_test();
         let clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 上限を1だけ超える貢献
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THREE_THOUSAND_USDC + 1, ts::ctx(&mut scenario));
-        
+
         // E_SUPPORT_CAP_REACHEDでアボートするはず
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -185,28 +203,32 @@ module champion_together::dao_pool_tests {
     fun test_distribute_success() {
         let mut scenario = setup_test();
         let mut clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // トレジャリーに資金を追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
         // 30日進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
-        
+
         // 資金を分配
         ts::next_tx(&mut scenario, ORGANIZER);
         dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
-        
+
         // 分配後の状態を検証
         assert!(dao_pool::total_raised(&pool) == 0, 0); // 0にリセット
-        
+
         // トレジャリーには端数処理による最小限のダストがあるはず
         let remaining = dao_pool::treasury_balance(&pool);
         assert!(remaining < 10, 1); // 10マイクロUSDC未満のダスト
-        
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -219,20 +241,24 @@ module champion_together::dao_pool_tests {
     fun test_distribute_too_early() {
         let mut scenario = setup_test();
         let mut clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 資金を追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
         // すぐに分配を試みる（失敗するはず）
         ts::next_tx(&mut scenario, ORGANIZER);
-        
+
         // E_DISTRIBUTION_TOO_EARLYでアボートするはず
         dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
-        
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -245,22 +271,26 @@ module champion_together::dao_pool_tests {
     fun test_distribute_one_ms_before_interval() {
         let mut scenario = setup_test();
         let mut clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 資金を追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
         // 30日マイナス1ミリ秒進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS - 1);
-        
+
         ts::next_tx(&mut scenario, ORGANIZER);
-        
+
         // E_DISTRIBUTION_TOO_EARLYでアボートするはず
         dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
-        
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);
@@ -295,33 +325,37 @@ module champion_together::dao_pool_tests {
     fun test_distribute_ratio_calculations() {
         let mut scenario = setup_test();
         let mut clock = clock::create_for_testing(ts::ctx(&mut scenario));
-        
+
         let mut pool = init_dao_pool(&mut scenario, &clock);
-        
+
+        // NFT状態を作成
+        let mut nft_state = member_nft::create_test_state(ts::ctx(&mut scenario));
+
         // 計算しやすいように正確に1000 USDCを追加
         ts::next_tx(&mut scenario, SUPPORTER1);
         let payment = mint_usdc(THOUSAND_USDC, ts::ctx(&mut scenario));
-        dao_pool::support(&mut pool, payment, &clock, ts::ctx(&mut scenario));
-        
+        dao_pool::support(&mut pool, &mut nft_state, payment, &clock, ts::ctx(&mut scenario));
+
         let initial_treasury = dao_pool::treasury_balance(&pool);
-        
+
         // 時間を進める
         clock::increment_for_testing(&mut clock, THIRTY_DAYS_MS);
-        
+
         // 分配
         ts::next_tx(&mut scenario, ORGANIZER);
         dao_pool::distribute(&mut pool, &clock, ts::ctx(&mut scenario));
-        
+
         // 期待される金額: 格闘家 60%、ジム 30%、主催者 10%
         // 格闘家: 600 USDC、ジム: 300 USDC、主催者: 100 USDC
         let expected_fighter = (initial_treasury * 60) / 100;
         let expected_gym = (initial_treasury * 30) / 100;
         let expected_organizer = (initial_treasury * 10) / 100;
-        
+
         // 分配された合計を検証（端数処理のダストを許容）
         let total_distributed = expected_fighter + expected_gym + expected_organizer;
         assert!(total_distributed <= initial_treasury, 0);
-        
+
+        test_utils::destroy(nft_state);
         test_utils::destroy(pool);
         clock::destroy_for_testing(clock);
         ts::end(scenario);

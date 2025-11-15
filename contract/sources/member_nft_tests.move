@@ -35,11 +35,9 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             assert!(member_nft::total_supply(&state) == 0, 0);
-            assert!(member_nft::dao_pool_id(&state) == dao_pool_id, 1);
 
             test_utils::destroy(state);
         };
@@ -56,8 +54,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // ブロンズランク: 10 USDC = 10,000,000 マイクロUSDC
             let support_amount = 10_000_000;
@@ -97,8 +94,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // シルバーランク: 50 USDC = 50,000,000 マイクロUSDC
             let support_amount = 50_000_000;
@@ -135,8 +131,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // ゴールドランク: 100 USDC = 100,000,000 マイクロUSDC
             let support_amount = 100_000_000;
@@ -173,8 +168,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // プラチナランク: 200 USDC = 200,000,000 マイクロUSDC
             let support_amount = 200_000_000;
@@ -211,8 +205,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // 1つ目のNFTをミント
             member_nft::mint(
@@ -271,8 +264,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // 最小額未満: 5 USDC = 5,000,000 マイクロUSDC (Bronze最小値は10 USDC)
             let support_amount = 5_000_000;
@@ -301,8 +293,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             let support_amount = 100_000_000; // Gold
 
@@ -344,8 +335,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // Bronze: 49.999999 USDC (Silver未満)
             member_nft::mint(&mut state, 49_999_999, SUPPORTER1, &clock, ts::ctx(&mut scenario));
@@ -383,8 +373,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // Goldランクでミント
             member_nft::mint(&mut state, 150_000_000, SUPPORTER1, &clock, ts::ctx(&mut scenario));
@@ -418,8 +407,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             member_nft::mint(&mut state, 50_000_000, SUPPORTER1, &clock, ts::ctx(&mut scenario));
 
@@ -450,8 +438,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // Goldランクのユーザー
             member_nft::mint(&mut state, 100_000_000, SUPPORTER1, &clock, ts::ctx(&mut scenario));
@@ -485,8 +472,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             // 各ランクのユーザーをミント
             member_nft::mint(&mut state, 10_000_000, SUPPORTER1, &clock, ts::ctx(&mut scenario)); // Bronze
@@ -534,8 +520,7 @@ module champion_together::member_nft_tests {
 
         ts::next_tx(&mut scenario, ADMIN);
         {
-            let dao_pool_id = object::id_from_address(DAO_POOL);
-            let mut state = member_nft::init_nft_state(dao_pool_id, ts::ctx(&mut scenario));
+            let mut state = member_nft::init_nft_state(ts::ctx(&mut scenario));
 
             member_nft::mint(&mut state, 100_000_000, SUPPORTER1, &clock, ts::ctx(&mut scenario));
 
