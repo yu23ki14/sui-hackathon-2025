@@ -1,0 +1,28 @@
+{
+  "name": "lit-protocol",
+  "version": "1.0.0",
+  "description": "Lit Protocol encryption and decryption utilities for CHAMPION TOGETHER",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "encrypt": "tsx src/encrypt.ts",
+    "build": "tsc",
+    "test": "tsx src/test.ts"
+  },
+  "keywords": ["lit-protocol", "encryption", "sui"],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "@lit-protocol/auth-helpers": "^6.11.5",
+    "@lit-protocol/constants": "^6.11.5",
+    "@lit-protocol/crypto": "^6.11.5",
+    "@lit-protocol/lit-node-client": "^6.11.5",
+    "@lit-protocol/types": "^6.11.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

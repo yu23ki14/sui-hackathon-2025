@@ -1,24 +1,26 @@
 // Lit Protocol configuration for decentralized access control
-// TODO: Implement Lit Protocol SDK integration
+import * as LitJsSdk from '@lit-protocol/lit-node-client';
+import { LitNetwork } from '@lit-protocol/constants';
+import type { UnifiedAccessControlConditions } from '@lit-protocol/types';
 
 export const LIT_CONFIG = {
-  network: import.meta.env.VITE_LIT_NETWORK || "cayenne", // Lit testnet
-  chain: "sui",
+  network: (import.meta.env.VITE_LIT_NETWORK as LitNetwork) || LitNetwork.DatilDev,
+  chain: "ethereum", // Using ethereum for compatibility; Sui support is limited
 };
 
 /**
  * Initialize Lit Protocol client
- * TODO: Implement actual Lit Protocol client initialization
  */
-export const initializeLitClient = async () => {
-  // TODO: Initialize Lit Protocol client
-  // Example:
-  // const client = new LitNodeClient({ litNetwork: LIT_CONFIG.network });
-  // await client.connect();
-  // return client;
+export const initializeLitClient = async (): Promise<LitJsSdk.LitNodeClient> => {
+  const client = new LitJsSdk.LitNodeClient({
+    litNetwork: LIT_CONFIG.network,
+    debug: false,
+  });
 
-  console.log("TODO: Initialize Lit Protocol client");
-  return null;
+  await client.connect();
+  console.log('Lit Protocol client initialized');
+
+  return client;
 };
 
 /**
@@ -41,21 +43,30 @@ export const encryptContent = async (
 
 /**
  * Decrypt content with Lit Protocol
- * TODO: Implement content decryption with NFT ownership verification
  */
 export const decryptContent = async (
-  encryptedContent: string,
-  accessConditions: any[],
-  authSig: any
+  litClient: LitJsSdk.LitNodeClient,
+  ciphertext: string,
+  dataToEncryptHash: string,
+  unifiedAccessControlConditions: UnifiedAccessControlConditions
 ): Promise<string> => {
-  // TODO: Decrypt content using Lit Protocol
-  // const decryptedContent = await LitJsSdk.decryptString(
-  //   { ciphertext: encryptedContent, dataToEncryptHash, ...accessConditions, authSig }
-  // );
+  try {
+    const decryptedString = await LitJsSdk.decryptToString(
+      {
+        unifiedAccessControlConditions,
+        ciphertext,
+        dataToEncryptHash,
+        chain: LIT_CONFIG.chain,
+      },
+      litClient
+    );
 
-  console.log("TODO: Decrypt content with Lit Protocol", { encryptedContent, accessConditions, authSig });
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  return encryptedContent; // Mock: return encrypted content as-is
+    console.log('Content decrypted successfully');
+    return decryptedString;
+  } catch (error) {
+    console.error('Failed to decrypt content:', error);
+    throw new Error('復号化に失敗しました。アクセス条件を満たしているか確認してください。');
+  }
 };
 
 /**
