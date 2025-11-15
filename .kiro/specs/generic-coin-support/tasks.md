@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [-] 1. DaoPoolState構造体をジェネリック型対応に更新
+- [x] 1. DaoPoolState構造体をジェネリック型対応に更新
   - `DaoPoolState`に`<phantom T>`型パラメータを追加
   - `treasury`フィールドを`Balance<USDC>`から`Balance<T>`に変更
   - _Requirements: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4_
