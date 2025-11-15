@@ -33,22 +33,40 @@ export function useDistributionExecution(
     setError(null);
 
     try {
-      // TODO: Fetch DAO balances from blockchain
-      // const poolBalance = await daoContract.getPoolBalance();
-      // const fighterBalance = await daoContract.getFighterBalance();
-      // const gymBalance = await daoContract.getGymBalance();
-      // const organizerBalance = await daoContract.getOrganizerBalance();
+      const daoPoolAddress = CONTRACT_ADDRESSES.DAO_CONTRACT;
 
-      console.log("TODO: Fetch DAO balances from blockchain");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Mock data - remove after implementing blockchain integration
-      setBalances({
-        pool: 12500,
-        fighter: 3400,
-        gym: 1200,
-        organizer: 600,
+      // Fetch DaoPoolState object from blockchain
+      const result = await suiClient.getObject({
+        id: daoPoolAddress,
+        options: {
+          showContent: true,
+        },
       });
+
+      if (result.data?.content && "fields" in result.data.content) {
+        const fields = result.data.content.fields as any;
+
+        // Extract treasury balance (Pool balance)
+        const treasuryFields = fields.treasury?.fields;
+        const poolBalanceRaw = treasuryFields?.value || "0";
+        const poolBalance = Number(poolBalanceRaw) / 1_000_000_000; // Convert from smallest unit to SUI (9 decimals)
+
+        console.log("Pool balance fetched:", {
+          poolBalanceRaw,
+          poolBalance,
+          fields,
+        });
+
+        // Fighter, Gym, Organizer balances are not stored in the contract
+        // They would need to be fetched from their wallet addresses using suiClient.getBalance()
+        // For now, keep them as 0 (dummy data)
+        setBalances({
+          pool: poolBalance,
+          fighter: 0, // TODO: Fetch from fighter wallet address
+          gym: 0, // TODO: Fetch from gym wallet address
+          organizer: 0, // TODO: Fetch from organizer wallet address
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch balances"));
       console.error("Error fetching balances:", err);

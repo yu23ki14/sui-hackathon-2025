@@ -31,28 +31,49 @@ export function useDistributionSettings() {
     setError(null);
 
     try {
-      // TODO: Fetch distribution settings from blockchain
-      // const result = await daoContract.getDistributionDetails();
-      // setSettings({
-      //   periodDays: result.periodSeconds / (24 * 60 * 60),
-      //   maxPerDistribution: result.maxPerDistribution / 1_000_000,
-      //   percFighter: result.fighterPercentage,
-      //   percGym: result.gymPercentage,
-      //   percOrganizer: result.organizerPercentage,
-      // });
+      const daoPoolAddress = CONTRACT_ADDRESSES.DAO_CONTRACT;
 
-      console.log("TODO: Fetch distribution settings from blockchain");
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Fetch DaoPoolState object from blockchain
+      const result = await suiClient.getObject({
+        id: daoPoolAddress,
+        options: {
+          showContent: true,
+        },
+      });
 
-      // TODO: Fetch last distribution timestamp
-      // const lastDistribution = await daoContract.getLastDistributionTime();
-      // setLastDistributedAt(new Date(lastDistribution * 1000));
+      if (result.data?.content && "fields" in result.data.content) {
+        const fields = result.data.content.fields as any;
 
-      console.log("TODO: Fetch last distribution timestamp");
-      await new Promise((resolve) => setTimeout(resolve, 500));
+        // Extract distribution settings
+        const distributionIntervalMs = Number(fields.distribution_interval || 0);
+        const periodDays = distributionIntervalMs / (1000 * 60 * 60 * 24); // Convert ms to days
 
-      // Mock data - remove after implementing blockchain integration
-      setLastDistributedAt(new Date("2025-11-10T21:00:00"));
+        const supportCap = Number(fields.support_cap || 0);
+        const maxPerDistribution = supportCap / 1_000_000_000; // Convert from smallest unit to SUI (9 decimals)
+
+        setSettings({
+          periodDays,
+          maxPerDistribution,
+          percFighter: Number(fields.fighter_ratio || 70),
+          percGym: Number(fields.gym_ratio || 20),
+          percOrganizer: Number(fields.organizer_ratio || 10),
+        });
+
+        // Extract last distribution timestamp
+        const lastDistributionMs = Number(fields.last_distribution || 0);
+        if (lastDistributionMs > 0) {
+          setLastDistributedAt(new Date(lastDistributionMs));
+        } else {
+          setLastDistributedAt(null);
+        }
+
+        console.log("Distribution settings fetched:", {
+          periodDays,
+          maxPerDistribution,
+          lastDistributionMs,
+          fields,
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch distribution settings"));
       console.error("Error fetching distribution settings:", err);
