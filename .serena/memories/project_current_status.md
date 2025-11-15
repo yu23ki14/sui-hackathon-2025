@@ -1,7 +1,7 @@
 # CHAMPION TOGETHER - プロジェクト現状レポート
 
 **最終更新日**: 2025-11-15
-**プロジェクトフェーズ**: MVP開発完了、Lit Protocol統合待ち
+**プロジェクトフェーズ**: MVP開発完了、ジェネリック型対応とLit Protocol統合待ち
 
 ---
 
@@ -137,6 +137,25 @@
 
 ## ⏳ 未完了タスク
 
+### 0. ジェネリック型対応（新規Spec）
+**優先度**: 高（実用性向上のため）
+
+#### 概要
+現在のコントラクトは独自の`USDC`型を使用しているため、実際のTestnet USDCや他のトークンと互換性がありません。ジェネリック型パラメータ（`<T>`）を導入して、任意のコイン型（USDC、SUI、その他）で動作するようにリファクタリングします。
+
+#### 必要な実装
+- [ ] DaoPoolStateにジェネリック型パラメータ追加
+- [ ] support関数をCoin<T>に対応
+- [ ] distribute関数をCoin<T>に対応
+- [ ] distribute_bonus関数をCoin<T>に対応
+- [ ] init_pool関数をジェネリック型に対応
+- [ ] テストスクリプトの更新（--type-args対応）
+- [ ] ドキュメントの更新
+
+#### 現状
+- 仕様書（requirements.md, design.md, tasks.md）作成完了
+- 実装は未着手
+
 ### 1. Lit Protocol統合（タスク11）
 **優先度**: 中（コア機能ではない）
 
@@ -221,13 +240,24 @@ sui-hackathon-2025/
 │   │   ├── dao_pool_tests.move # DaoPoolテスト ✅
 │   │   ├── member_nft_tests.move # NFTテスト ✅
 │   │   └── integration_tests.move # 統合テスト ✅
+│   ├── scripts/                # テスト・デプロイスクリプト ✅
+│   │   ├── initialize.sh
+│   │   ├── test_*.sh
+│   │   ├── README.md
+│   │   └── QUICKSTART.md
 │   ├── Move.toml               # Moveパッケージ設定 ✅
 │   ├── DEPLOYMENT.md           # デプロイ情報 ✅
+│   ├── DEPLOYMENT_GENERIC.md   # ジェネリック型デプロイ情報 ✅
 │   └── CONTRACT_SPEC.md        # コントラクト仕様 ✅
 │
 ├── frontend/                    # React Webアプリケーション
 │   ├── src/
 │   │   ├── pages/              # ページコンポーネント（5個） ✅
+│   │   │   ├── Top.tsx
+│   │   │   ├── Support.tsx
+│   │   │   ├── MyPage.tsx
+│   │   │   ├── ExclusiveContent.tsx
+│   │   │   └── Admin.tsx
 │   │   ├── components/         # UIコンポーネント（20個） ✅
 │   │   ├── hooks/              # カスタムフック（12個） ✅
 │   │   ├── lib/                # ユーティリティ ✅
@@ -237,13 +267,25 @@ sui-hackathon-2025/
 │   ├── package.json            # npm依存関係 ✅
 │   └── vite.config.mts         # Vite設定 ✅
 │
+├── lit-protocol/               # Lit Protocol統合（開発中）
+│   ├── src/                    # SDK統合コード ⏳
+│   ├── README.md               # ドキュメント ✅
+│   └── package.json            # 依存関係 ✅
+│
 └── .kiro/                       # Kiro IDE設定
-    ├── specs/champion-together/ # 機能仕様書
-    │   ├── requirements.md     # 要件定義 ✅
-    │   ├── design.md           # 設計書 ✅
-    │   └── tasks.md            # タスクリスト ✅
+    ├── specs/
+    │   ├── champion-together/  # メイン機能仕様書
+    │   │   ├── requirements.md # 要件定義 ✅
+    │   │   ├── design.md       # 設計書 ✅
+    │   │   └── tasks.md        # タスクリスト ✅
+    │   └── generic-coin-support/ # ジェネリック型対応仕様書（新規）
+    │       ├── requirements.md # 要件定義 ✅
+    │       ├── design.md       # 設計書 ✅
+    │       └── tasks.md        # タスクリスト ✅
+    ├── hooks/                  # 自動化フック ✅
     └── steering/               # AIステアリングルール
         ├── product.md          # プロダクト概要 ✅
+        ├── product_idea.md     # アイデア背景 ✅
         ├── tech.md             # 技術スタック ✅
         └── structure.md        # プロジェクト構造 ✅
 ```
@@ -269,17 +311,24 @@ sui-hackathon-2025/
 
 ## 🚀 次のステップ
 
-### 短期（1-2日）
-1. ✅ 統合テストの完成（完了！）
+### 最優先（1-2日）
+1. ⏳ **ジェネリック型対応の実装**（generic-coin-support spec）
+   - DaoPoolとMembersNFTのリファクタリング
+   - テストスクリプトの更新
+   - 実際のTestnet USDCでの動作確認
 2. ⏳ フロントエンドのプロダクションビルド
 3. ⏳ Vercel/Netlifyへのデプロイ
-4. ⏳ Testnetでの実際の動作確認
 
-### 中期（3-5日）
+### 短期（3-5日）
 1. ⏳ DaoPoolStateの初期化（正しいアドレス設定）
-2. ⏳ Lit Protocol統合（オプション）
+2. ⏳ Testnetでの実際の動作確認（実際のUSDC使用）
 3. ⏳ エンドツーエンドテスト
 4. ⏳ ドキュメント整備
+
+### 中期（1週間）
+1. ⏳ Lit Protocol統合（オプション）
+2. ⏳ フロントエンドとジェネリック型コントラクトの統合
+3. ⏳ ユーザーフィードバック収集
 
 ### 長期（1週間以降）
 1. ⏳ Mainnetへのデプロイ準備
@@ -309,20 +358,20 @@ sui-hackathon-2025/
 
 ## 🐛 既知の問題
 
-### 1. DaoPoolStateの初期化
+### 1. コイン型の互換性問題（最優先）
+- **問題**: 現在のコントラクトは独自の`USDC`型を使用しており、実際のTestnet USDCと互換性がない
+- **影響**: 実際のUSDCトークンで支援機能をテストできない
+- **解決策**: ジェネリック型パラメータ（`<T>`）を導入してリファクタリング（generic-coin-support spec）
+
+### 2. DaoPoolStateの初期化
 - **問題**: デフォルトアドレス（0x0）で初期化されている
 - **影響**: 分配機能が正しく動作しない
 - **解決策**: `change_distribution_detail()`で正しいアドレスを設定
 
-### 2. USDC Testnetトークン
-- **問題**: 実際のTestnet USDCアドレスが未設定
-- **影響**: 支援機能のテストができない
-- **解決策**: Sui TestnetのUSDCコントラクトアドレスを取得して設定
-
 ### 3. Lit Protocol未統合
 - **問題**: 限定コンテンツのアクセス制御がフロントエンドのみ
 - **影響**: セキュリティが不十分
-- **解決策**: Lit Protocol SDKを統合して実際の暗号化を実装
+- **解決策**: Lit Protocol SDKを統合して実際の暗号化を実装（優先度：中）
 
 ---
 
@@ -341,10 +390,18 @@ sui-hackathon-2025/
 - デプロイ可能な状態を維持
 
 ### 今後の改善点
+- **最優先**: ジェネリック型対応で実用性向上（実際のUSDC使用可能に）
 - Lit Protocol統合でセキュリティ強化
 - zkLogin実装でUX改善
 - CI/CD構築で自動化
 - モニタリング導入で運用改善
+
+### 新規Spec: generic-coin-support
+- **目的**: 任意のコイン型（USDC、SUI、その他）で動作するようにリファクタリング
+- **背景**: 現在の独自USDC型では実際のTestnet USDCと互換性がない
+- **アプローチ**: Moveのジェネリック型パラメータ（`<T>`）を活用
+- **影響範囲**: DaoPool、MembersNFT、テストスクリプト、ドキュメント
+- **ステータス**: 仕様書完成、実装未着手
 
 ---
 
