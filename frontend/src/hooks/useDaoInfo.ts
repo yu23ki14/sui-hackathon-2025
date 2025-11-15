@@ -22,29 +22,30 @@ export function useDaoInfo() {
     setError(null);
 
     try {
-      // TODO: Fetch DAO distribution percentages from blockchain
-      // const result = await suiClient.getObject({
-      //   id: CONTRACT_ADDRESSES.DAO_CONTRACT,
-      //   options: { showContent: true },
-      // });
-      // const fields = (result.data?.content as any)?.fields;
-      // setDaoInfo({
-      //   name: fields.name,
-      //   fighterPercentage: fields.fighter_percentage,
-      //   gymPercentage: fields.gym_percentage,
-      //   organizerPercentage: fields.organizer_percentage,
-      // });
+      const daoPoolAddress = CONTRACT_ADDRESSES.DAO_CONTRACT;
 
-      console.log("TODO: Fetch DAO info from blockchain");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Mock data - remove after implementing blockchain integration
-      setDaoInfo({
-        name: "TEAM KENTA DAO",
-        fighterPercentage: 70,
-        gymPercentage: 20,
-        organizerPercentage: 10,
+      // Fetch DAO distribution percentages from blockchain
+      const result = await suiClient.getObject({
+        id: daoPoolAddress,
+        options: { showContent: true },
       });
+
+      if (result.data?.content && "fields" in result.data.content) {
+        const fields = result.data.content.fields as any;
+
+        setDaoInfo({
+          name: "TEAM KENTA DAO", // Contract doesn't store name, use config
+          fighterPercentage: Number(fields.fighter_ratio || 70),
+          gymPercentage: Number(fields.gym_ratio || 20),
+          organizerPercentage: Number(fields.organizer_ratio || 10),
+        });
+
+        console.log("DAO info fetched:", {
+          fighterPercentage: fields.fighter_ratio,
+          gymPercentage: fields.gym_ratio,
+          organizerPercentage: fields.organizer_ratio,
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch DAO info"));
       console.error("Error fetching DAO info:", err);

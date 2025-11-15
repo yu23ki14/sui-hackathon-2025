@@ -49,7 +49,7 @@ export function useDistributionSettings() {
           showContent: true,
         },
       });
-
+      
       if (!daoPoolObject.data || !daoPoolObject.data.content || daoPoolObject.data.content.dataType !== "moveObject") {
         throw new Error("Failed to fetch DAO pool state");
       }

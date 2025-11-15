@@ -42,7 +42,7 @@ function SummaryCard({ label, value, subtitle }: SummaryCardProps) {
 interface MySummaryCardsProps {
   totalSupportAmount: number;
   nftCount: number;
-  lastSupportDate: Date | null;
+  lastSupportDate: number | null;
   isLoading?: boolean;
 }
 
@@ -52,8 +52,9 @@ export function MySummaryCards({
   lastSupportDate,
   isLoading,
 }: MySummaryCardsProps) {
-  const formatDate = (date: Date | null) => {
-    if (!date) return "まだサポートしていません";
+  const formatDate = (ms: number | null) => {
+    if (!ms) return "--";
+    const date = new Date(ms);
     return date.toLocaleDateString("ja-JP", {
       year: "numeric",
       month: "2-digit",

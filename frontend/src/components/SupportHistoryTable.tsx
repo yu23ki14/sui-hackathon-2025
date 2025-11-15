@@ -2,7 +2,7 @@ import { Box, Button, Card, Heading, Table, Text } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 
 export interface SupportHistoryItem {
-  date: string;
+  date: number;
   amount: number;
   txHash: string;
 }
@@ -131,7 +131,13 @@ export function SupportHistoryTable({
         <Table.Body>
           {history.map((item, index) => (
             <Table.Row key={index}>
-              <Table.Cell>{item.date}</Table.Cell>
+              <Table.Cell>{
+                new Date(item.date).toLocaleDateString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+                }</Table.Cell>
               <Table.Cell>{item.amount.toFixed(4)}</Table.Cell>
               <Table.Cell>
                 <a

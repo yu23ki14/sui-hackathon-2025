@@ -42,79 +42,113 @@ export function useEventHistory() {
     setError(null);
 
     try {
-      // TODO: Fetch Support events from blockchain
-      // const supportEventsResult = await suiClient.queryEvents({
-      //   query: {
-      //     MoveEventType: `${CONTRACT_ADDRESSES.DAO_CONTRACT}::dao::SupportEvent`,
-      //   },
-      // });
-      // const supportData = supportEventsResult.data.map((event: any) => ({
-      //   date: new Date(event.timestampMs).toLocaleString("ja-JP"),
-      //   supporter: event.parsedJson.supporter,
-      //   amount: event.parsedJson.amount / 1_000_000,
-      //   txHash: event.id.txDigest,
-      // }));
+      const packageId = import.meta.env.VITE_PACKAGE_ID;
 
-      console.log("TODO: Fetch Support events from blockchain");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Mock data - remove after implementing blockchain integration
-      setSupportEvents([
-        {
-          date: "2025/11/10 21:34",
-          supporter: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          amount: 10.0,
-          txHash: "0xabc123",
+      // Fetch Support events from blockchain
+      const supportEventsResult = await suiClient.queryEvents({
+        query: {
+          MoveEventType: `${packageId}::dao_pool::SupportEvent`,
         },
-        {
-          date: "2025/11/09 14:22",
-          supporter: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-          amount: 50.0,
-          txHash: "0xdef456",
+      });
+
+      const supportData: SupportEvent[] = supportEventsResult.data.map((event: any) => {
+        const timestampMs = event.timestampMs || Date.now();
+        const amount = Number(event.parsedJson.amount || 0);
+
+        return {
+          date: new Date(timestampMs).toLocaleString("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          supporter: event.parsedJson.supporter || "",
+          amount: amount / 1_000_000_000, // Convert from smallest unit to SUI (9 decimals)
+          txHash: event.id?.txDigest || "",
+        };
+      });
+
+      setSupportEvents(supportData);
+
+      console.log("Support events fetched:", {
+        count: supportData.length,
+        events: supportData,
+      });
+
+      // Fetch Distribute events from blockchain
+      const distributeEventsResult = await suiClient.queryEvents({
+        query: {
+          MoveEventType: `${packageId}::dao_pool::DistributionEvent`,
         },
-      ]);
+      });
 
-      // TODO: Fetch Distribute events from blockchain
-      // const distributeEventsResult = await suiClient.queryEvents({
-      //   query: {
-      //     MoveEventType: `${CONTRACT_ADDRESSES.DAO_CONTRACT}::dao::DistributeEvent`,
-      //   },
-      // });
+      const distributeData: DistributeEvent[] = distributeEventsResult.data.map((event: any) => {
+        const timestampMs = event.timestampMs || Date.now();
+        const totalAmount = Number(event.parsedJson.total_amount || 0);
+        const fighterAmount = Number(event.parsedJson.fighter_amount || 0);
+        const gymAmount = Number(event.parsedJson.gym_amount || 0);
+        const organizerAmount = Number(event.parsedJson.organizer_amount || 0);
 
-      console.log("TODO: Fetch Distribute events from blockchain");
-      await new Promise((resolve) => setTimeout(resolve, 500));
+        return {
+          date: new Date(timestampMs).toLocaleString("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          totalAmount: totalAmount / 1_000_000_000, // Convert to SUI
+          fighterAmount: fighterAmount / 1_000_000_000,
+          gymAmount: gymAmount / 1_000_000_000,
+          organizerAmount: organizerAmount / 1_000_000_000,
+          txHash: event.id?.txDigest || "",
+        };
+      });
 
-      setDistributeEvents([
-        {
-          date: "2025/11/10 21:00",
-          totalAmount: 3000,
-          fighterAmount: 2100,
-          gymAmount: 600,
-          organizerAmount: 300,
-          txHash: "0x789abc",
+      setDistributeEvents(distributeData);
+
+      console.log("Distribute events fetched:", {
+        count: distributeData.length,
+        events: distributeData,
+      });
+
+      // Fetch Bonus events from blockchain
+      const bonusEventsResult = await suiClient.queryEvents({
+        query: {
+          MoveEventType: `${packageId}::dao_pool::BonusDistributionEvent`,
         },
-      ]);
+      });
 
-      // TODO: Fetch Bonus events from blockchain
-      // const bonusEventsResult = await suiClient.queryEvents({
-      //   query: {
-      //     MoveEventType: `${CONTRACT_ADDRESSES.DAO_CONTRACT}::dao::BonusDistributionEvent`,
-      //   },
-      // });
+      const bonusData: BonusEvent[] = bonusEventsResult.data.map((event: any) => {
+        const timestampMs = event.timestampMs || Date.now();
+        const bonusAmount = Number(event.parsedJson.bonus_amount || 0);
+        const fighterAmount = Number(event.parsedJson.fighter_amount || 0);
+        const gymAmount = Number(event.parsedJson.gym_amount || 0);
+        const organizerAmount = Number(event.parsedJson.organizer_amount || 0);
 
-      console.log("TODO: Fetch Bonus events from blockchain");
-      await new Promise((resolve) => setTimeout(resolve, 500));
+        return {
+          date: new Date(timestampMs).toLocaleString("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          bonusAmount: bonusAmount / 1_000_000_000, // Convert to SUI
+          fighterAmount: fighterAmount / 1_000_000_000,
+          gymAmount: gymAmount / 1_000_000_000,
+          organizerAmount: organizerAmount / 1_000_000_000,
+          txHash: event.id?.txDigest || "",
+        };
+      });
 
-      setBonusEvents([
-        {
-          date: "2025/11/08 18:00",
-          bonusAmount: 500,
-          fighterAmount: 350,
-          gymAmount: 100,
-          organizerAmount: 50,
-          txHash: "0x456def",
-        },
-      ]);
+      setBonusEvents(bonusData);
+
+      console.log("Bonus events fetched:", {
+        count: bonusData.length,
+        events: bonusData,
+      });
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch event history"));
       console.error("Error fetching event history:", err);
